@@ -1,10 +1,14 @@
-var BrowserWindow, Menu, app, mainWindow, menu, name, showSetting;
+var BrowserWindow, Dialog, Menu, app, createProject, ipcMain, mainWindow, menu, name, path, showSetting;
 
 app = require('app');
 
 BrowserWindow = require('browser-window');
 
 Menu = require('menu');
+
+Dialog = require('dialog');
+
+ipcMain = require('electron').ipcMain;
 
 require('crash-reporter').start();
 
@@ -16,9 +20,29 @@ app.on('window-all-closed', function() {
   }
 });
 
+path = null;
+
+createProject = function(cb) {
+  return Dialog.showSaveDialog(function(p) {
+    var fs;
+    fs = require('fs');
+    path = p + '/';
+    return fs.mkdir(p, function(err) {
+      if (err) {
+        console.log(err);
+      }
+      return cb();
+    });
+  });
+};
+
+ipcMain.on('requestPath-message', function(e) {
+  return e.sender.send('requestPath-reply', path);
+});
+
 showSetting = function() {};
 
-name = 'first';
+name = 'Glauca';
 
 menu = Menu.buildFromTemplate([
   {
@@ -47,6 +71,15 @@ menu = Menu.buildFromTemplate([
         label: 'Exit',
         accelerator: 'CmdOrCtrl+Q',
         click: app.quit
+      }
+    ]
+  }, {
+    label: 'File',
+    submenu: [
+      {
+        label: 'New Project',
+        accelerator: 'CmdOrCtrl+N',
+        click: this.createProject
       }
     ]
   }, {
@@ -150,13 +183,15 @@ menu = Menu.buildFromTemplate([
 ]);
 
 app.on('ready', function() {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600
-  });
-  mainWindow.loadUrl('file://' + __dirname + '/index.html');
-  Menu.setApplicationMenu(menu);
-  return mainWindow.on('closed', function() {
-    return mainWindow = null;
+  return createProject(function() {
+    mainWindow = new BrowserWindow({
+      width: 800,
+      height: 600
+    });
+    mainWindow.loadUrl('file://' + __dirname + '/index.html');
+    Menu.setApplicationMenu(menu);
+    return mainWindow.on('closed', function() {
+      return mainWindow = null;
+    });
   });
 });

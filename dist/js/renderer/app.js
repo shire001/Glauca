@@ -1,6 +1,12 @@
+document.ondragover = document.ondrop = function(e) {
+  e.preventDefault();
+  return false;
+};
+
 window.onload = function() {
-  var Contents, FileView, FxView, MainView, React, ReactDOM, Timeline, remote;
+  var Contents, FileView, FxView, MainView, React, ReactDOM, Timeline, ipcRenderer, remote;
   remote = require('remote');
+  ipcRenderer = require('electron').ipcRenderer;
   React = require('react');
   ReactDOM = require('react-dom');
   MainView = require('./js/renderer/MainView');
@@ -8,6 +14,23 @@ window.onload = function() {
   FxView = require('./js/renderer/FxView');
   Timeline = require('./js/renderer/Timeline');
   Contents = React.createClass({
+    getInitialState: function() {
+      return {
+        projectPath: null
+      };
+    },
+    componentDidMount: function() {
+      ipcRenderer.on('requestPath-reply', (function(_this) {
+        return function(e, path) {
+          console.log(e);
+          console.log(path);
+          return _this.setState({
+            projectPath: path
+          });
+        };
+      })(this));
+      return ipcRenderer.send('requestPath-message', '');
+    },
     render: function() {
       return React.createElement("div", {
         "id": "Contents"

@@ -1,6 +1,8 @@
 app = require('app')
 BrowserWindow = require('browser-window')
 Menu = require('menu')
+Dialog = require('dialog')
+{ipcMain} = require 'electron'
 
 require('crash-reporter').start()
 
@@ -10,10 +12,22 @@ app.on('window-all-closed', () ->
   if (process.platform != 'darwin')
     app.quit()
 )
+path = null
+createProject =  (cb) ->
+  Dialog.showSaveDialog (p)->
+    fs = require 'fs'
+    path = p + '/'
+    fs.mkdir p, (err)->
+      if err
+        console.log err
+      cb()
+
+ipcMain.on 'requestPath-message', (e) ->
+  e.sender.send 'requestPath-reply', path
 
 showSetting = () ->
 
-name = 'first'
+name = 'Glauca'
 menu = Menu.buildFromTemplate([
   {
     label: name,
@@ -40,6 +54,16 @@ menu = Menu.buildFromTemplate([
         type: 'separator'
       },
       {label: 'Exit', accelerator: 'CmdOrCtrl+Q', click: app.quit}
+    ]
+  },
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'New Project',
+        accelerator: 'CmdOrCtrl+N',
+        click: @createProject
+      },
     ]
   },
   {
@@ -146,12 +170,12 @@ menu = Menu.buildFromTemplate([
 
 app.on('ready', () ->
   # ブラウザ(Chromium)の起動, 初期画面のロード
+  createProject ->
+    mainWindow = new BrowserWindow({width: 800, height: 600})
+    mainWindow.loadUrl('file://' + __dirname + '/index.html')
+    Menu.setApplicationMenu(menu)
 
-  mainWindow = new BrowserWindow({width: 800, height: 600})
-  mainWindow.loadUrl('file://' + __dirname + '/index.html')
-  Menu.setApplicationMenu(menu)
-
-  mainWindow.on('closed', () ->
-    mainWindow = null
-  )
+    mainWindow.on('closed', () ->
+      mainWindow = null
+    )
 )
