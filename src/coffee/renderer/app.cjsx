@@ -2,20 +2,10 @@ window.onload = () ->
   remote = require 'remote'
   React = require 'react'
   ReactDOM = require 'react-dom'
-  MainView = React.createClass
-    render: ->
-      <div id="MainView">
-        <svg></svg>
-      </div>
-  FileView = React.createClass
-    render: ->
-      <div id="FileView"></div>
-  FxView = React.createClass
-    render: ->
-      <div id="FxView"></div>
-  Timeline = React.createClass
-    render: ->
-      <div id="Timeline"></div>
+  MainView = require './js/renderer/MainView'
+  FileView = require './js/renderer/FileView'
+  FxView = require './js/renderer/FxView'
+  Timeline = require './js/renderer/Timeline'
   Contents = React.createClass
     render: () ->
       return (
