@@ -21,6 +21,10 @@ body {
   position: absolute;
   background-color: #c88989;
 }
+#MainView svg {
+  width: 100%;
+  height: 100%;
+}
 #FileView {
   top: 0%;
   height: 70%;
@@ -42,4 +46,16 @@ body {
   width: 100%;
   position: absolute;
   background-color: #b9b1b1;
+}
+#Timeline #KeyTimeline {
+  display: inline-flex;
+  height: 100%;
+  width: 30%;
+  background-color: #b9b1b1;
+}
+#Timeline #ValueTimeline {
+  display: inline-flex;
+  height: 100%;
+  width: 70%;
+  background-color: #504e4e;
 }
