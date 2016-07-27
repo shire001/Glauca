@@ -34,7 +34,9 @@ window.onload = function() {
     render: function() {
       return React.createElement("div", {
         "id": "Contents"
-      }, React.createElement(MainView, null), React.createElement(FileView, null), React.createElement(FxView, null), React.createElement(Timeline, null));
+      }, React.createElement(MainView, null), React.createElement(FileView, {
+        "path": this.state.projectPath
+      }), React.createElement(FxView, null), React.createElement(Timeline, null));
     }
   });
   return ReactDOM.render(React.createElement(Contents, null), document.getElementById('Top'));

@@ -32,6 +32,36 @@ html, body {
   width: 25%;
   position: absolute;
   background-color: #83d0cb;
+  overflow: auto;
+  .directory:before {
+    content: "\f04b";
+    font-family: FontAwesome;
+    font-size: x-small;
+    position: relative;
+    left: -0.5em;
+    vertical-align: top;
+    display: inline-block;
+    .transition(transform);
+  }
+  .directory.open:before {
+    transform: rotate(90deg);
+  }
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    display: block;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 2em;
+    line-height: 1em;
+  }
+}
+
+.fileview-ele {
+  cursor: pointer;
 }
 
 #FxView {
@@ -51,38 +81,63 @@ html, body {
   position: absolute;
   background-color: #b9b1b1;
 
+  @elementHeight: 30px;
+
   #KeyTimeline {
     display: inline-flex;
+    flex-direction: column;
     height: 100%;
-    width: 30%;
+    width: calc(~'30% - 1px');
     position: absolute;
-    background-color: #3b3b3b;
+    background-color: #464646;
+    border-right: 1px solid #323232;
 
+    .element {
+      min-width: 100%;
+      border-top: thin solid #585858;
+      .target {
+        height: @elementHeight;
+        color: white;
+        background-color: #383838;
+        border-bottom: thin solid #585858;
+        p {
+          display: inline-flex;
+          margin: 0;
+          padding: 0 5px;
+          line-height: @elementHeight;
+        }
+      }
+      .prop {
+        .indent {
+        }
+      }
+    }
   }
 
   #ValueTimeline {
     display: inline-flex;
+    flex-direction: column;
     left: 30%;
     height: 100%;
     width: 70%;
     position: absolute;
     background-color: #504e4e;
-  }
 
-  @elementHeight: 30px;
-
-  .element {
-    width: 100%;
-    .target {
-      height: @elementHeight;
-      color: white;
-      background-color: #6b6b6b;
-      p {
-        display: inline-flex;
-        margin: 0;
-        padding: 0 5px;
-        line-height: @elementHeight;
+    .value {
+      min-width: 100%;
+      border-top: thin solid #585858;
+      .prop_value {
+        height: @elementHeight;
+        color: white;
+        background-color: #3e3e3e;
+        border-bottom: thin solid #585858;
       }
     }
   }
+}
+
+.transition(@target: all, @ms: 500ms) {
+  transition-property: @target;
+  transition-duration: @ms;
+  transition-timing-function: cubic-bezier(0.465, 0.183, 0.153, 0.946);
 }

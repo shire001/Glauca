@@ -24,7 +24,7 @@ window.onload = () ->
       return (
         <div id="Contents">
           <MainView />
-          <FileView />
+          <FileView path={@state.projectPath}/>
           <FxView />
           <Timeline />
         </div>

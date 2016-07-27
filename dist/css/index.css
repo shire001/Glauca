@@ -31,6 +31,37 @@ body {
   width: 25%;
   position: absolute;
   background-color: #83d0cb;
+  overflow: auto;
+}
+#FileView .directory:before {
+  content: "\f04b";
+  font-family: FontAwesome;
+  font-size: x-small;
+  position: relative;
+  left: -0.5em;
+  vertical-align: top;
+  display: inline-block;
+  transition-property: transform;
+  transition-duration: 500ms;
+  transition-timing-function: cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+#FileView .directory.open:before {
+  transform: rotate(90deg);
+}
+#FileView ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#FileView li {
+  display: block;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 2em;
+  line-height: 1em;
+}
+.fileview-ele {
+  cursor: pointer;
 }
 #FxView {
   top: 0%;
@@ -49,30 +80,45 @@ body {
 }
 #Timeline #KeyTimeline {
   display: inline-flex;
+  flex-direction: column;
   height: 100%;
-  width: 30%;
+  width: calc(30% - 1px);
   position: absolute;
-  background-color: #3b3b3b;
+  background-color: #464646;
+  border-right: 1px solid #323232;
+}
+#Timeline #KeyTimeline .element {
+  min-width: 100%;
+  border-top: thin solid #585858;
+}
+#Timeline #KeyTimeline .element .target {
+  height: 30px;
+  color: white;
+  background-color: #383838;
+  border-bottom: thin solid #585858;
+}
+#Timeline #KeyTimeline .element .target p {
+  display: inline-flex;
+  margin: 0;
+  padding: 0 5px;
+  line-height: 30px;
 }
 #Timeline #ValueTimeline {
   display: inline-flex;
+  flex-direction: column;
   left: 30%;
   height: 100%;
   width: 70%;
   position: absolute;
   background-color: #504e4e;
 }
-#Timeline .element {
-  width: 100%;
+#Timeline #ValueTimeline .value {
+  min-width: 100%;
+  border-top: thin solid #585858;
 }
-#Timeline .element .target {
+#Timeline #ValueTimeline .value .prop_value {
   height: 30px;
   color: white;
-  background-color: #6b6b6b;
-}
-#Timeline .element .target p {
-  display: inline-flex;
-  margin: 0;
-  padding: 0 5px;
-  line-height: 30px;
+  background-color: #3e3e3e;
+  border-bottom: thin solid #585858;
 }

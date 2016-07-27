@@ -1,19 +1,64 @@
-var AnimationElement, AnimationEvent, AnimationProperty, TimelineMax, TweenMax;
+var AnimationElement, AnimationProperty, TimelineMax, TweenMax, e1, e2, update;
 
 TimelineMax = require("../../vendor/gsap/uncompressed/TimelineMax.js");
 
 TweenMax = require("../../vendor/gsap/uncompressed/TweenMax.js");
 
+AnimationElement = require("./timeline/AnimationElement.js");
+
+AnimationProperty = require("./timeline/AnimationProperty.js");
+
+update = require('react-addons-update');
+
+e1 = new AnimationElement("e1", document.getElementById("e1"));
+
+e1.addProp(new AnimationProperty("opacity", e1, true));
+
+e1.addProp(new AnimationProperty("cx", e1, true));
+
+e2 = new AnimationElement("e2", document.getElementById("e2"));
+
+e2.addProp(new AnimationProperty("opacity", e2, true));
+
 module.exports = React.createClass({
   getInitialState: function() {
     return {
-      animElemList: [new AnimationElement("e1", document.getElementById("e1")), new AnimationElement("e2", document.getElementById("e2"))]
+      animElemList: [e1, e2]
     };
   },
+  renameElement: function(e) {
+    var elem, elemDom, i, j, len, newElem, newName, newState, ref, targetId;
+    elemDom = e.target.parentNode.parentNode;
+    targetId = +elemDom.getAttribute("dir");
+    newState = [];
+    i = 0;
+    newName = "(*_*)";
+    ref = this.state.animElemList;
+    for (j = 0, len = ref.length; j < len; j++) {
+      elem = ref[j];
+      if (elem.id === targetId) {
+        newElem = elem;
+        newElem.name = newName;
+        newState[i] = newElem;
+        newState = {
+          "$merge": newState
+        };
+        newState = update(this.state.animElemList, newState);
+      }
+      i++;
+    }
+    return this.setState(newState);
+  },
+  renameProp: function(e) {
+    var element, id;
+    element = e.target.parentNode.parentNode;
+    id = element.getAttribute("dir");
+    return console.log(id);
+  },
   render: function() {
-    var keyDoms, onClick;
+    var _this, keyDoms, onClick, valueDoms;
     onClick = function() {
-      var e1, e2, e3, tl;
+      var e3, tl;
       e1 = document.getElementById("e1");
       e2 = document.getElementById("e2");
       e3 = document.getElementById("e3");
@@ -39,157 +84,21 @@ module.exports = React.createClass({
         scaleX: 2
       }, tl.recent().endTime());
     };
+    _this = this;
     keyDoms = this.state.animElemList.map(function(element) {
-      return React.createElement("div", {
-        "className": "element",
-        "value": element.id
-      }, React.createElement("div", {
-        "className": "target"
-      }, React.createElement("p", {
-        "className": "fa fa-file-text-o",
-        "aria-hidden": "true"
-      }), React.createElement("p", {
-        "className": "name"
-      }, element.name)), React.createElement("div", null));
+      return element.genKeyDom(_this.renameElement, _this.renameProp);
+    });
+    valueDoms = this.state.animElemList.map(function(element) {
+      return element.genValueDom();
     });
     return React.createElement("div", {
-      "id": "Timeline",
-      "onClick": onClick
+      "id": "Timeline"
     }, React.createElement("div", {
       "id": "KeyTimeline"
-    }, keyDoms), React.createElement("div", {
+    }, React.createElement("div", {
+      "className": "menu"
+    }), keyDoms), React.createElement("div", {
       "id": "ValueTimeline"
-    }));
+    }, valueDoms));
   }
 });
-
-AnimationElement = (function() {
-  var dom, id, isLoad, name, propList;
-
-  AnimationElement.curId = 0;
-
-  id = AnimationElement.curId++;
-
-  name = null;
-
-  dom = null;
-
-  propList = [];
-
-  isLoad = false;
-
-  function AnimationElement(name1, dom1) {
-    this.name = name1;
-    this.dom = dom1;
-  }
-
-  AnimationElement.prototype.addProp = function(prop) {
-    if (prop instanceof AnimationProperty) {
-      prop.id = this.propList.length;
-      return this.propList.push(prop);
-    } else {
-      return console.error(prop + " is not AnimationProperty class");
-    }
-  };
-
-  AnimationElement.prototype.deleteProp = function(id) {
-    var i, j, len, prop, results;
-    i = 0;
-    results = [];
-    for (j = 0, len = propList.length; j < len; j++) {
-      prop = propList[j];
-      if (prop.id === id) {
-        delete this.propList[i];
-      }
-      results.push(i++);
-    }
-    return results;
-  };
-
-  return AnimationElement;
-
-})();
-
-AnimationProperty = (function() {
-  var eventList, id, isLoad, isProperty, name, propList, target;
-
-  id = -1;
-
-  name = null;
-
-  target = null;
-
-  propList = [];
-
-  eventList = [];
-
-  isProperty = false;
-
-  isLoad = false;
-
-  function AnimationProperty(name1, target1, isProperty1) {
-    this.name = name1;
-    this.target = target1;
-    this.isProperty = isProperty1;
-  }
-
-  AnimationProperty.prototype.addEvent = function(event) {
-    if (event instanceof AnimationEvent) {
-      event.id = this.eventList.length;
-      return eventList.push(event);
-    } else {
-      return console.error(event + " is not AnimationEvent class");
-    }
-  };
-
-  AnimationProperty.prototype.deleteEvent = function(id) {
-    var event, i, j, len, ref, results;
-    i = 0;
-    ref = this.eventList;
-    results = [];
-    for (j = 0, len = ref.length; j < len; j++) {
-      event = ref[j];
-      if (this.eventList[i].id === id) {
-        delete this.eventList[i];
-      }
-      results.push(i++);
-    }
-    return results;
-  };
-
-  return AnimationProperty;
-
-})();
-
-AnimationEvent = (function() {
-  var bezier, duration, endValue, id, name, startValue, target, time;
-
-  id = -1;
-
-  name = null;
-
-  target = null;
-
-  time = 0;
-
-  startValue = null;
-
-  endValue = null;
-
-  bezier = null;
-
-  duration = 0;
-
-  function AnimationEvent(target1, name1, startValue1, endValue1, time1, duration1, bezier1) {
-    this.target = target1;
-    this.name = name1;
-    this.startValue = startValue1;
-    this.endValue = endValue1;
-    this.time = time1;
-    this.duration = duration1;
-    this.bezier = bezier1;
-  }
-
-  return AnimationEvent;
-
-})();

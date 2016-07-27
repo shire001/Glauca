@@ -1,11 +1,44 @@
 TimelineMax = require "../../vendor/gsap/uncompressed/TimelineMax.js"
 TweenMax = require "../../vendor/gsap/uncompressed/TweenMax.js"
+AnimationElement = require "./timeline/AnimationElement.js"
+AnimationProperty = require "./timeline/AnimationProperty.js"
+update = require 'react-addons-update'
+
+e1 = new AnimationElement("e1", document.getElementById "e1")
+e1.addProp new AnimationProperty("opacity", e1, true)
+e1.addProp new AnimationProperty("cx", e1, true)
+e2 = new AnimationElement("e2", document.getElementById "e2")
+e2.addProp new AnimationProperty("opacity", e2, true)
+
 module.exports = React.createClass
   getInitialState: ->
     animElemList : [
-      new AnimationElement("e1", document.getElementById "e1"),
-      new AnimationElement("e2", document.getElementById "e2")
+      e1,
+      e2
     ]
+
+  renameElement: (e) ->
+    elemDom = e.target.parentNode.parentNode
+    targetId = +elemDom.getAttribute("dir")
+    newState = []
+    i = 0
+    newName = "(*_*)"
+    for elem in @state.animElemList
+      if elem.id is targetId
+        newElem = elem
+        newElem.name = newName
+        newState[i] = newElem
+        newState =
+          "$merge": newState
+        newState = (update @state.animElemList, newState)
+      i++
+    @setState newState
+
+  renameProp: (e) ->
+    element = e.target.parentNode.parentNode
+    id = element.getAttribute("dir")
+    console.log id
+
   render: ->
     onClick = ->
       e1 = document.getElementById("e1")
@@ -19,82 +52,20 @@ module.exports = React.createClass
         .to("#e1", 1, {attr:{cy:50}}, 1)
         .to('#e3', 1, {scaleX:2}, tl.recent().endTime())
 
+    _this = @
     keyDoms = @state.animElemList.map (element) ->
-      <div className="element" value={element.id}>
-        <div className="target">
-          <p className="fa fa-file-text-o" aria-hidden="true"/>
-          <p className="name">{element.name}</p>
-        </div>
-        <div>
-        </div>
-      </div>
+      element.genKeyDom(_this.renameElement, _this.renameProp)
 
-    <div id="Timeline" onClick = {onClick}>
+    valueDoms = @state.animElemList.map (element) ->
+      element.genValueDom()
+
+    <div id="Timeline">
       <div id="KeyTimeline">
+        <div className="menu">
+        </div>
         {keyDoms}
       </div>
-      <div id="ValueTimeline"></div>
+      <div id="ValueTimeline">
+        {valueDoms}
+      </div>
     </div>
-
-class AnimationElement
-  @curId = 0
-  id = AnimationElement.curId++
-  name = null
-  dom = null
-  propList = []
-  isLoad = false
-
-  constructor: (@name, @dom) ->
-
-  addProp: (prop) ->
-    if prop instanceof AnimationProperty
-      prop.id = @propList.length
-      @propList.push prop
-    else
-      console.error "#{prop} is not AnimationProperty class"
-
-  deleteProp: (id) ->
-    i = 0
-    for prop in propList
-      if prop.id == id
-#        AnimationProperty.deletedPropStack.push prop
-        delete @propList[i]
-      i++
-
-class AnimationProperty
-#  @deletedPropStack
-  id = -1
-  name = null
-  target = null
-  propList = []
-  eventList = []
-  isProperty = false
-  isLoad = false
-
-  constructor: (@name, @target, @isProperty) ->
-
-  addEvent: (event) ->
-    if event instanceof AnimationEvent
-      event.id = @eventList.length
-      eventList.push event
-    else
-      console.error "#{event} is not AnimationEvent class"
-
-  deleteEvent: (id) ->
-    i = 0
-    for event in @eventList
-      if @eventList[i].id == id
-        delete @eventList[i]
-      i++
-
-class AnimationEvent
-  id = -1
-  name = null
-  target = null
-  time = 0
-  startValue = null
-  endValue = null
-  bezier = null
-  duration = 0
-
-  constructor: (@target, @name, @startValue, @endValue, @time, @duration, @bezier) ->
