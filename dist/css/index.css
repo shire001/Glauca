@@ -21,6 +21,10 @@ body {
   position: absolute;
   background-color: #c88989;
 }
+#MainView svg {
+  width: 100%;
+  height: 100%;
+}
 #FileView {
   top: 0%;
   height: 70%;
@@ -73,4 +77,48 @@ body {
   width: 100%;
   position: absolute;
   background-color: #b9b1b1;
+}
+#Timeline #KeyTimeline {
+  display: inline-flex;
+  flex-direction: column;
+  height: 100%;
+  width: calc(30% - 1px);
+  position: absolute;
+  background-color: #464646;
+  border-right: 1px solid #323232;
+}
+#Timeline #KeyTimeline .element {
+  min-width: 100%;
+  border-top: thin solid #585858;
+}
+#Timeline #KeyTimeline .element .target {
+  height: 30px;
+  color: white;
+  background-color: #383838;
+  border-bottom: thin solid #585858;
+}
+#Timeline #KeyTimeline .element .target p {
+  display: inline-flex;
+  margin: 0;
+  padding: 0 5px;
+  line-height: 30px;
+}
+#Timeline #ValueTimeline {
+  display: inline-flex;
+  flex-direction: column;
+  left: 30%;
+  height: 100%;
+  width: 70%;
+  position: absolute;
+  background-color: #504e4e;
+}
+#Timeline #ValueTimeline .value {
+  min-width: 100%;
+  border-top: thin solid #585858;
+}
+#Timeline #ValueTimeline .value .prop_value {
+  height: 30px;
+  color: white;
+  background-color: #3e3e3e;
+  border-bottom: thin solid #585858;
 }

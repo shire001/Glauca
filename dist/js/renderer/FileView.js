@@ -68,7 +68,6 @@ module.exports = React.createClass({
         return React.createElement("li", {
           "key": file.name,
           "onClick": file.onclick,
-          "onDrop": _this.onDropItem,
           "draggable": draggable,
           "className": cl,
           "value": "" + path + file.name,
