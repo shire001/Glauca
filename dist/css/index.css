@@ -27,6 +27,37 @@ body {
   width: 25%;
   position: absolute;
   background-color: #83d0cb;
+  overflow: auto;
+}
+#FileView .directory:before {
+  content: "\f04b";
+  font-family: FontAwesome;
+  font-size: x-small;
+  position: relative;
+  left: -0.5em;
+  vertical-align: top;
+  display: inline-block;
+  transition-property: transform;
+  transition-duration: 500ms;
+  transition-timing-function: cubic-bezier(0.465, 0.183, 0.153, 0.946);
+}
+#FileView .directory.open:before {
+  transform: rotate(90deg);
+}
+#FileView ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#FileView li {
+  display: block;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 2em;
+  line-height: 1em;
+}
+.fileview-ele {
+  cursor: pointer;
 }
 #FxView {
   top: 0%;

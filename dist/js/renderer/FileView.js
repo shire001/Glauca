@@ -1,15 +1,164 @@
+var React, exec, fs, remote, update;
+
+React = require('react');
+
+fs = require('fs');
+
+remote = require('remote');
+
+exec = remote.require('child_process').exec;
+
+update = require('react-addons-update');
+
 module.exports = React.createClass({
-  render: function() {
-    var ondrop;
-    ondrop = function(e) {
-      var ref, ref1;
-      e.preventDefault();
-      console.log((ref = e.dataTransfer.files) != null ? ref[0] : void 0);
-      return (ref1 = e.dataTransfer.files) != null ? ref1[0] : void 0;
+  getInitialState: function() {
+    return {
+      files: []
     };
-    return React.createElement("div", {
-      "id": "FileView",
-      "onDrop": ondrop
+  },
+  componentDidMount: function() {},
+  onDropItem: function(e) {
+    var ref, ref1, targetPath;
+    e.preventDefault();
+    console.log((ref = e.dataTransfer.files) != null ? ref[0] : void 0);
+    targetPath = this.props.path;
+    if (e.currentTarget.classList.contains("directory")) {
+      targetPath += e.currentTarget.attributes.value.textContent;
+      console.log(targetPath);
+    }
+    return exec("cp " + ((ref1 = e.dataTransfer.files) != null ? ref1[0].path : void 0) + " " + targetPath, function(err) {
+      if (err != null) {
+        return console.log(err);
+      }
     });
+  },
+  createFileList: function(files, path, indexes) {
+    var i, items;
+    if (path == null) {
+      path = "";
+    }
+    if (indexes == null) {
+      indexes = "";
+    }
+    i = 0;
+    items = files.map((function(_this) {
+      return function(file) {
+        var cl, draggable, inner;
+        if (file.name[0] === ".") {
+          i++;
+          return null;
+        }
+        cl = "fileview-ele";
+        if (file.isDirectory) {
+          if (file.isLoaded && file.isOpen) {
+            cl += " open";
+            inner = _this.createFileList(file.inner, "" + path + file.name + "/", "" + indexes + i + "-");
+          }
+          cl += " directory";
+          draggable = false;
+        } else {
+          draggable = true;
+        }
+        return React.createElement("li", {
+          "key": file.name,
+          "onClick": file.onclick,
+          "onDrop": _this.onDropItem,
+          "draggable": draggable,
+          "className": cl,
+          "value": "" + path + file.name,
+          "alt": "" + indexes + (i++)
+        }, React.createElement("i", {
+          "className": file.className
+        }), " ", file.name, inner);
+      };
+    })(this));
+    return React.createElement("ul", {
+      "className": "fileview"
+    }, items);
+  },
+  readDir: function(path, cb) {
+    return fs.readdir(path, (function(_this) {
+      return function(err, ret) {
+        var f, file, files, j, len;
+        files = [];
+        for (j = 0, len = ret.length; j < len; j++) {
+          file = ret[j];
+          f = {};
+          f.name = file;
+          f.isDirectory = fs.statSync("" + path + file).isDirectory();
+          if (f.isDirectory) {
+            f.className = "fa fa-folder";
+            f.onclick = (function(n) {
+              return function(e) {
+                var cur, cur_inner, currentTarget, currentTarget_inner, diff, i, indexes, k, len1, newFiles, p, target;
+                e.stopPropagation();
+                target = e.target;
+                while (!target.classList.contains("fileview-ele")) {
+                  target = target.parentNode;
+                }
+                indexes = target.attributes.alt.textContent.split("-");
+                currentTarget = _this.state.files;
+                currentTarget_inner = currentTarget;
+                diff = {};
+                cur_inner = diff;
+                for (k = 0, len1 = indexes.length; k < len1; k++) {
+                  i = indexes[k];
+                  currentTarget = currentTarget_inner[i];
+                  currentTarget_inner = currentTarget.inner;
+                  cur = cur_inner[i] = {};
+                  cur_inner = cur.inner = {};
+                }
+                if (currentTarget != null ? currentTarget.isOpen : void 0) {
+                  delete cur.inner;
+                  cur["$merge"] = {
+                    isOpen: false
+                  };
+                  newFiles = update(_this.state.files, diff);
+                  return _this.setState({
+                    files: newFiles
+                  });
+                } else {
+                  p = e.currentTarget.attributes.value.textContent;
+                  return _this.readDir("" + _this.props.path + p + "/", (function(c, d) {
+                    return function(inner) {
+                      delete c.inner;
+                      c["$merge"] = {
+                        inner: inner,
+                        isLoaded: true,
+                        isOpen: true
+                      };
+                      newFiles = update(_this.state.files, d);
+                      return _this.setState({
+                        files: newFiles
+                      });
+                    };
+                  })(cur, diff));
+                }
+              };
+            })(files.length);
+          } else {
+            f.className = "fa fa-file-o";
+          }
+          files.push(f);
+        }
+        return cb(files);
+      };
+    })(this));
+  },
+  render: function() {
+    var items;
+    if ((this.props.path != null) && this.state.files.length < 1) {
+      this.readDir(this.props.path, (function(_this) {
+        return function(files) {
+          return _this.setState({
+            files: files
+          });
+        };
+      })(this));
+    }
+    items = this.createFileList(this.state.files);
+    return React.createElement("div", {
+      "id": "FileView"
+    }, items);
   }
 });
