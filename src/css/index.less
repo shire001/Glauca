@@ -55,13 +55,32 @@ html, body {
     display: inline-flex;
     height: 100%;
     width: 30%;
-    background-color: #b9b1b1;
+    position: absolute;
+    background-color: #3b3b3b;
+
   }
 
   #ValueTimeline {
     display: inline-flex;
+    left: 30%;
     height: 100%;
     width: 70%;
+    position: absolute;
     background-color: #504e4e;
+  }
+
+  @elementHeight: 30px;
+
+  .element {
+    width: 100%;
+    height: @elementHeight;
+    color: white;
+    background-color: #6b6b6b;
+    p {
+      display: inline-flex;
+      margin: 0;
+      padding: 0 5px;
+      line-height: @elementHeight;
+    }
   }
 }

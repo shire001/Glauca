@@ -9,7 +9,7 @@ module.exports = React.createClass({
       "r": "50",
       "stroke": "blue",
       "fill": "white",
-      "stroke-width": "5"
+      "strokeWidth": "5"
     }), React.createElement("circle", {
       "id": "e2",
       "cx": "150",
@@ -17,7 +17,7 @@ module.exports = React.createClass({
       "r": "50",
       "stroke": "red",
       "fill": "white",
-      "stroke-width": "5"
+      "strokeWidth": "5"
     }), React.createElement("circle", {
       "id": "e3",
       "cx": "250",
@@ -25,7 +25,7 @@ module.exports = React.createClass({
       "r": "50",
       "stroke": "green",
       "fill": "white",
-      "stroke-width": "5"
+      "strokeWidth": "5"
     })));
   }
 });
