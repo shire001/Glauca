@@ -2,7 +2,10 @@ TimelineMax = require "../../vendor/gsap/uncompressed/TimelineMax.js"
 TweenMax = require "../../vendor/gsap/uncompressed/TweenMax.js"
 module.exports = React.createClass
   getInitialState: ->
-    animElemList : [new AnimationElement("opacity", document.getElementById("e1"))]
+    animElemList : [
+      new AnimationElement("e1", document.getElementById "e1"),
+      new AnimationElement("e2", document.getElementById "e2")
+    ]
   render: ->
     onClick = ->
       e1 = document.getElementById("e1")
@@ -18,8 +21,12 @@ module.exports = React.createClass
 
     keyDoms = @state.animElemList.map (element) ->
       <div className="element" value={element.id}>
-        <p className="fa fa-file-text-o" aria-hidden="true"/>
-        <p className="name">{element.name}</p>
+        <div className="target">
+          <p className="fa fa-file-text-o" aria-hidden="true"/>
+          <p className="name">{element.name}</p>
+        </div>
+        <div>
+        </div>
       </div>
 
     <div id="Timeline" onClick = {onClick}>

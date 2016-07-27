@@ -7,7 +7,7 @@ TweenMax = require("../../vendor/gsap/uncompressed/TweenMax.js");
 module.exports = React.createClass({
   getInitialState: function() {
     return {
-      animElemList: [new AnimationElement("opacity", document.getElementById("e1"))]
+      animElemList: [new AnimationElement("e1", document.getElementById("e1")), new AnimationElement("e2", document.getElementById("e2"))]
     };
   },
   render: function() {
@@ -43,12 +43,14 @@ module.exports = React.createClass({
       return React.createElement("div", {
         "className": "element",
         "value": element.id
+      }, React.createElement("div", {
+        "className": "target"
       }, React.createElement("p", {
         "className": "fa fa-file-text-o",
         "aria-hidden": "true"
       }), React.createElement("p", {
         "className": "name"
-      }, element.name));
+      }, element.name)), React.createElement("div", null));
     });
     return React.createElement("div", {
       "id": "Timeline",

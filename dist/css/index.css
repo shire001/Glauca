@@ -64,11 +64,13 @@ body {
 }
 #Timeline .element {
   width: 100%;
+}
+#Timeline .element .target {
   height: 30px;
   color: white;
   background-color: #6b6b6b;
 }
-#Timeline .element p {
+#Timeline .element .target p {
   display: inline-flex;
   margin: 0;
   padding: 0 5px;
