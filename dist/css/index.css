@@ -78,6 +78,9 @@ body {
   position: absolute;
   background-color: #b9b1b1;
 }
+#Timeline .right {
+  float: right;
+}
 #Timeline #KeyTimeline {
   display: inline-flex;
   flex-direction: column;
@@ -92,16 +95,21 @@ body {
   border-top: thin solid #585858;
 }
 #Timeline #KeyTimeline .element .target {
-  height: 30px;
+  display: flex;
+  height: 25px;
   color: white;
   background-color: #383838;
   border-bottom: thin solid #585858;
 }
 #Timeline #KeyTimeline .element .target p {
-  display: inline-flex;
   margin: 0;
   padding: 0 5px;
-  line-height: 30px;
+  line-height: 25px;
+}
+#Timeline #KeyTimeline .element .target input {
+  border: thin solid #96d0ff;
+  color: #96d0ff;
+  background-color: #383838;
 }
 #Timeline #ValueTimeline {
   display: inline-flex;
@@ -117,7 +125,7 @@ body {
   border-top: thin solid #585858;
 }
 #Timeline #ValueTimeline .value .prop_value {
-  height: 30px;
+  height: 25px;
   color: white;
   background-color: #3e3e3e;
   border-bottom: thin solid #585858;

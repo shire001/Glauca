@@ -12,7 +12,8 @@ AnimationProperty = (function() {
     this.id = null;
     this.propList = [];
     this.eventList = [];
-    this.isLoad = false;
+    this.isOpen = false;
+    this.isSelected = false;
   }
 
   AnimationProperty.prototype.addEvent = function(event) {
@@ -37,40 +38,6 @@ AnimationProperty = (function() {
       results.push(i++);
     }
     return results;
-  };
-
-  AnimationProperty.prototype.genKeyDom = function(indent, renameProp) {
-    return React.createElement("div", {
-      "className": "prop",
-      "dir": this.id
-    }, React.createElement("div", {
-      "className": "target"
-    }, React.createElement("p", {
-      "className": "indent",
-      "width": indent + "px"
-    }), React.createElement("p", {
-      "className": (this.isProperty ? "fa fa-sliders" : "fa fa-magic"),
-      "aria-hidden": "true"
-    }), React.createElement("p", {
-      "className": "name"
-    }, this.name), React.createElement("p", {
-      "className": "fa fa-pencil",
-      "aria-hidden": "true",
-      "onClick": renameProp
-    })), React.createElement("div", {
-      "className": "props"
-    }, this.propList.map(function(prop) {
-      return prop.genKeyDom(indent + 10);
-    })));
-  };
-
-  AnimationProperty.prototype.genValueDom = function() {
-    return React.createElement("div", {
-      "className": "prop_value",
-      "value": this.id
-    }, this.propList.map(function(prop) {
-      return prop.genValueDom();
-    }));
   };
 
   return AnimationProperty;

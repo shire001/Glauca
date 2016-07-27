@@ -10,9 +10,10 @@ AnimationElement = (function() {
   function AnimationElement(name, dom) {
     this.name = name;
     this.dom = dom;
-    this.id = AnimationElement.curId++;
+    this.id = "" + (AnimationElement.curId++);
     this.propList = [];
-    this.isLoad = false;
+    this.isOpen = false;
+    this.isSelected = false;
   }
 
   AnimationElement.prototype.addProp = function(prop) {
@@ -36,38 +37,6 @@ AnimationElement = (function() {
       results.push(i++);
     }
     return results;
-  };
-
-  AnimationElement.prototype.genKeyDom = function(renameElement, renameProp) {
-    return React.createElement("div", {
-      "className": "element",
-      "dir": this.id
-    }, React.createElement("div", {
-      "className": "target"
-    }, React.createElement("p", {
-      "className": "fa fa-file-text-o",
-      "aria-hidden": "true"
-    }), React.createElement("p", {
-      "className": "name"
-    }, this.name), React.createElement("p", {
-      "className": "fa fa-pencil",
-      "aria-hidden": "true",
-      "onClick": renameElement
-    })), React.createElement("div", {
-      "className": "props"
-    }, this.propList.map(function(prop) {
-      return prop.genKeyDom(10, renameProp);
-    })));
-  };
-
-  AnimationElement.prototype.genValueDom = function() {
-    return React.createElement("div", {
-      "className": "value"
-    }, React.createElement("div", {
-      "className": "prop_value"
-    }), this.propList.map(function(prop) {
-      return prop.genValueDom();
-    }));
   };
 
   return AnimationElement;

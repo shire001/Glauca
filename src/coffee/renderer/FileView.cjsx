@@ -10,14 +10,18 @@ module.exports = React.createClass
   componentDidMount: ->
   onDropItem: (e) ->
     e.preventDefault()
+    e.stopPropagation()
     console.log e.dataTransfer.files?[0]
     targetPath = @props.path
     if e.currentTarget.classList.contains("directory")
       targetPath += e.currentTarget.attributes.value.textContent
-      console.log targetPath
-    exec "cp #{e.dataTransfer.files?[0].path} #{targetPath}", (err) ->
+    console.log targetPath
+    exec "cp \"#{e.dataTransfer.files?[0].path}\" \"#{targetPath}\"", (err) =>
       if err?
         console.log err
+      else
+      @readDir()
+
   createFileList: (files, path="", indexes="") ->
     i = 0
     items = files.map (file) =>
@@ -33,13 +37,13 @@ module.exports = React.createClass
         draggable = false
       else
         draggable = true
-      <li key={file.name} onClick={file.onclick} draggable={draggable}
+      <li key={file.name} onClick={file.onclick} onDrop={@onDropItem} draggable={draggable}
           className={cl} value="#{path}#{file.name}" alt="#{indexes}#{i++}">
         <i className={file.className}/> {file.name}
         {inner}
       </li>
     <ul className="fileview" onDrop={@onDropItem}>{items}</ul>
-  readDir: (path, cb) ->
+  readDir: (path=@props.path, cb=((files) => @setState files: files)) ->
     fs.readdir path, (err, ret) =>
       files = []
       for file in ret
@@ -90,7 +94,7 @@ module.exports = React.createClass
       cb files
   render: ->
     if @props.path? and @state.files.length < 1
-      @readDir @props.path, (files) => @setState files: files
+      @readDir()
     items = @createFileList @state.files
     <div id="FileView" onDrop={@onDropItem}>
       {items}

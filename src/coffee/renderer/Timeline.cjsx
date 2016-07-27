@@ -1,5 +1,4 @@
 TimelineMax = require "../../vendor/gsap/uncompressed/TimelineMax.js"
-TweenMax = require "../../vendor/gsap/uncompressed/TweenMax.js"
 AnimationElement = require "./timeline/AnimationElement.js"
 AnimationProperty = require "./timeline/AnimationProperty.js"
 update = require 'react-addons-update'
@@ -17,20 +16,45 @@ module.exports = React.createClass
       e2
     ]
 
-  renameElement: (e) ->
+  onClickElemRename: (e) ->
     elemDom = e.target.parentNode.parentNode
-    targetId = +elemDom.getAttribute("dir")
-    newState = []
+    targetId = elemDom.getAttribute("dir")
+    console.log targetId
+    newState = {}
     i = 0
-    newName = "(*_*)"
     for elem in @state.animElemList
       if elem.id is targetId
-        newElem = elem
-        newElem.name = newName
-        newState[i] = newElem
+        newElem = {}
+        newElem.isRename = true
+        newState[i] =
+          "$merge": newElem
         newState =
-          "$merge": newState
-        newState = (update @state.animElemList, newState)
+          animElemList: newState
+        newState = (update @state, newState)
+      i++
+    @setState newState
+
+  onClickPropRename: (e) ->
+    propDom = e.target.parentNode.parentNode
+    targetId = propDom.getAttribute("dir")
+    #TODO
+
+  renameElement: (e) ->
+    elemDom = e.target.parentNode.parentNode
+    targetId = elemDom.getAttribute("dir")
+    newState = []
+    i = 0
+    newName = e.target.parentNode.getElementsByClassName("name")[0].value
+    for elem in @state.animElemList
+      if elem.id is targetId
+        newElem = {}
+        newElem.name = newName
+        newElem.isRename = false
+        newState[i] =
+          "$merge": newElem
+        newState =
+          animElemList: newState
+        newState = (update @state, newState)
       i++
     @setState newState
 
@@ -38,6 +62,74 @@ module.exports = React.createClass
     element = e.target.parentNode.parentNode
     id = element.getAttribute("dir")
     console.log id
+    #TODO
+
+  genElementKeyDom: (element) ->
+    _this = @
+    nameDom = null
+    renameDom = null
+    if element.isRename
+      nameDom = <input className="name" type="name" placeholder={element.name} autoFocus="true"></input>
+      renameDom = <p className="fa fa-check right" aria-hidden="true" onClick={_this.renameElement}/>
+    else
+      nameDom = <p className="name">{element.name}</p>
+      renameDom = <p className="fa fa-pencil right" aria-hidden="true" onClick={_this.onClickElemRename}/>
+
+    <div className="element" dir={element.id} key={element.id}>
+      <div className={ if element.isSelected then "target selected" else "target" }>
+        <p className="fa fa-file-text-o" aria-hidden="true"/>
+        {nameDom}
+        {renameDom}
+      </div>
+      <div className="props">
+        {
+          element.propList.map (prop) ->
+            _this.genPropKeyDom(10, prop)
+        }
+      </div>
+    </div>
+
+  genElementValueDom: (element) ->
+    _this = @
+    <div className="value" key={element.id}>
+      <div className="prop_value">
+      </div>
+      {
+        element.propList.map (prop) ->
+          _this.genPropValueDom(prop)
+      }
+    </div>
+
+  genPropKeyDom: (indent, prop) ->
+    _this = @
+    <div className="prop" dir={prop.id} key={prop.id}>
+      <div className="target">
+        <p className="indent" width={indent + "px"}/>
+        <p className={
+          if prop.isProperty
+            "fa fa-sliders"
+          else
+            "fa fa-magic"
+          } aria-hidden="true"/>
+        <p className="name">{prop.name}</p>
+        <p className="fa fa-pencil right" aria-hidden="true" onClick={@onClickPropRename}/>
+      </div>
+      <div className="props">
+        {
+          prop.propList.map (p) ->
+            _this.genPropKeyDom(indent + 10, p)
+        }
+      </div>
+    </div>
+
+  genPropValueDom: (prop) ->
+    _this = @
+    <div className="prop_value" key={prop.id}>
+      {
+        prop.propList.map (p) ->
+          _this.genPropValueDom(p)
+      }
+    </div>
 
   render: ->
     onClick = ->
@@ -54,10 +146,10 @@ module.exports = React.createClass
 
     _this = @
     keyDoms = @state.animElemList.map (element) ->
-      element.genKeyDom(_this.renameElement, _this.renameProp)
+      _this.genElementKeyDom(element)
 
     valueDoms = @state.animElemList.map (element) ->
-      element.genValueDom()
+      _this.genElementValueDom(element)
 
     <div id="Timeline">
       <div id="KeyTimeline">

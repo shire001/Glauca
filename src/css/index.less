@@ -81,7 +81,11 @@ html, body {
   position: absolute;
   background-color: #b9b1b1;
 
-  @elementHeight: 30px;
+  @elementHeight: 25px;
+
+  .right {
+    float: right;
+  }
 
   #KeyTimeline {
     display: inline-flex;
@@ -96,15 +100,20 @@ html, body {
       min-width: 100%;
       border-top: thin solid #585858;
       .target {
+        display: flex;
         height: @elementHeight;
         color: white;
         background-color: #383838;
         border-bottom: thin solid #585858;
         p {
-          display: inline-flex;
           margin: 0;
           padding: 0 5px;
           line-height: @elementHeight;
+        }
+        input {
+          border: thin solid rgb(150, 208, 255);
+          color: rgb(150, 208, 255);
+          background-color: #383838;
         }
       }
       .prop {

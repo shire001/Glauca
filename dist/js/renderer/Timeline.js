@@ -1,8 +1,6 @@
-var AnimationElement, AnimationProperty, TimelineMax, TweenMax, e1, e2, update;
+var AnimationElement, AnimationProperty, TimelineMax, e1, e2, update;
 
 TimelineMax = require("../../vendor/gsap/uncompressed/TimelineMax.js");
-
-TweenMax = require("../../vendor/gsap/uncompressed/TweenMax.js");
 
 AnimationElement = require("./timeline/AnimationElement.js");
 
@@ -26,24 +24,57 @@ module.exports = React.createClass({
       animElemList: [e1, e2]
     };
   },
-  renameElement: function(e) {
-    var elem, elemDom, i, j, len, newElem, newName, newState, ref, targetId;
+  onClickElemRename: function(e) {
+    var elem, elemDom, i, j, len, newElem, newState, ref, targetId;
     elemDom = e.target.parentNode.parentNode;
-    targetId = +elemDom.getAttribute("dir");
-    newState = [];
+    targetId = elemDom.getAttribute("dir");
+    console.log(targetId);
+    newState = {};
     i = 0;
-    newName = "(*_*)";
     ref = this.state.animElemList;
     for (j = 0, len = ref.length; j < len; j++) {
       elem = ref[j];
       if (elem.id === targetId) {
-        newElem = elem;
-        newElem.name = newName;
-        newState[i] = newElem;
-        newState = {
-          "$merge": newState
+        newElem = {};
+        newElem.isRename = true;
+        newState[i] = {
+          "$merge": newElem
         };
-        newState = update(this.state.animElemList, newState);
+        newState = {
+          animElemList: newState
+        };
+        newState = update(this.state, newState);
+      }
+      i++;
+    }
+    return this.setState(newState);
+  },
+  onClickPropRename: function(e) {
+    var propDom, targetId;
+    propDom = e.target.parentNode.parentNode;
+    return targetId = propDom.getAttribute("dir");
+  },
+  renameElement: function(e) {
+    var elem, elemDom, i, j, len, newElem, newName, newState, ref, targetId;
+    elemDom = e.target.parentNode.parentNode;
+    targetId = elemDom.getAttribute("dir");
+    newState = [];
+    i = 0;
+    newName = e.target.parentNode.getElementsByClassName("name")[0].value;
+    ref = this.state.animElemList;
+    for (j = 0, len = ref.length; j < len; j++) {
+      elem = ref[j];
+      if (elem.id === targetId) {
+        newElem = {};
+        newElem.name = newName;
+        newElem.isRename = false;
+        newState[i] = {
+          "$merge": newElem
+        };
+        newState = {
+          animElemList: newState
+        };
+        newState = update(this.state, newState);
       }
       i++;
     }
@@ -54,6 +85,97 @@ module.exports = React.createClass({
     element = e.target.parentNode.parentNode;
     id = element.getAttribute("dir");
     return console.log(id);
+  },
+  genElementKeyDom: function(element) {
+    var _this, nameDom, renameDom;
+    _this = this;
+    nameDom = null;
+    renameDom = null;
+    if (element.isRename) {
+      nameDom = React.createElement("input", {
+        "className": "name",
+        "type": "name",
+        "placeholder": element.name,
+        "autoFocus": "true"
+      });
+      renameDom = React.createElement("p", {
+        "className": "fa fa-check right",
+        "aria-hidden": "true",
+        "onClick": _this.renameElement
+      });
+    } else {
+      nameDom = React.createElement("p", {
+        "className": "name"
+      }, element.name);
+      renameDom = React.createElement("p", {
+        "className": "fa fa-pencil right",
+        "aria-hidden": "true",
+        "onClick": _this.onClickElemRename
+      });
+    }
+    return React.createElement("div", {
+      "className": "element",
+      "dir": element.id,
+      "key": element.id
+    }, React.createElement("div", {
+      "className": (element.isSelected ? "target selected" : "target")
+    }, React.createElement("p", {
+      "className": "fa fa-file-text-o",
+      "aria-hidden": "true"
+    }), nameDom, renameDom), React.createElement("div", {
+      "className": "props"
+    }, element.propList.map(function(prop) {
+      return _this.genPropKeyDom(10, prop);
+    })));
+  },
+  genElementValueDom: function(element) {
+    var _this;
+    _this = this;
+    return React.createElement("div", {
+      "className": "value",
+      "key": element.id
+    }, React.createElement("div", {
+      "className": "prop_value"
+    }), element.propList.map(function(prop) {
+      return _this.genPropValueDom(prop);
+    }));
+  },
+  genPropKeyDom: function(indent, prop) {
+    var _this;
+    _this = this;
+    return React.createElement("div", {
+      "className": "prop",
+      "dir": prop.id,
+      "key": prop.id
+    }, React.createElement("div", {
+      "className": "target"
+    }, React.createElement("p", {
+      "className": "indent",
+      "width": indent + "px"
+    }), React.createElement("p", {
+      "className": (prop.isProperty ? "fa fa-sliders" : "fa fa-magic"),
+      "aria-hidden": "true"
+    }), React.createElement("p", {
+      "className": "name"
+    }, prop.name), React.createElement("p", {
+      "className": "fa fa-pencil right",
+      "aria-hidden": "true",
+      "onClick": this.onClickPropRename
+    })), React.createElement("div", {
+      "className": "props"
+    }, prop.propList.map(function(p) {
+      return _this.genPropKeyDom(indent + 10, p);
+    })));
+  },
+  genPropValueDom: function(prop) {
+    var _this;
+    _this = this;
+    return React.createElement("div", {
+      "className": "prop_value",
+      "key": prop.id
+    }, prop.propList.map(function(p) {
+      return _this.genPropValueDom(p);
+    }));
   },
   render: function() {
     var _this, keyDoms, onClick, valueDoms;
@@ -86,10 +208,10 @@ module.exports = React.createClass({
     };
     _this = this;
     keyDoms = this.state.animElemList.map(function(element) {
-      return element.genKeyDom(_this.renameElement, _this.renameProp);
+      return _this.genElementKeyDom(element);
     });
     valueDoms = this.state.animElemList.map(function(element) {
-      return element.genValueDom();
+      return _this.genElementValueDom(element);
     });
     return React.createElement("div", {
       "id": "Timeline"
