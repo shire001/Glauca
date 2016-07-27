@@ -20,17 +20,23 @@ module.exports = React.createClass({
   onDropItem: function(e) {
     var ref, ref1, targetPath;
     e.preventDefault();
+    e.stopPropagation();
     console.log((ref = e.dataTransfer.files) != null ? ref[0] : void 0);
     targetPath = this.props.path;
     if (e.currentTarget.classList.contains("directory")) {
       targetPath += e.currentTarget.attributes.value.textContent;
-      console.log(targetPath);
     }
-    return exec("cp " + ((ref1 = e.dataTransfer.files) != null ? ref1[0].path : void 0) + " " + targetPath, function(err) {
-      if (err != null) {
-        return console.log(err);
-      }
-    });
+    console.log(targetPath);
+    return exec("cp \"" + ((ref1 = e.dataTransfer.files) != null ? ref1[0].path : void 0) + "\" \"" + targetPath + "\"", (function(_this) {
+      return function(err) {
+        if (err != null) {
+          console.log(err);
+        } else {
+
+        }
+        return _this.readDir();
+      };
+    })(this));
   },
   createFileList: function(files, path, indexes) {
     var i, items;
@@ -73,10 +79,23 @@ module.exports = React.createClass({
       };
     })(this));
     return React.createElement("ul", {
-      "className": "fileview"
+      "className": "fileview",
+      "onDrop": this.onDropItem
     }, items);
   },
   readDir: function(path, cb) {
+    if (path == null) {
+      path = this.props.path;
+    }
+    if (cb == null) {
+      cb = ((function(_this) {
+        return function(files) {
+          return _this.setState({
+            files: files
+          });
+        };
+      })(this));
+    }
     return fs.readdir(path, (function(_this) {
       return function(err, ret) {
         var f, file, files, j, len;
@@ -148,17 +167,12 @@ module.exports = React.createClass({
   render: function() {
     var items;
     if ((this.props.path != null) && this.state.files.length < 1) {
-      this.readDir(this.props.path, (function(_this) {
-        return function(files) {
-          return _this.setState({
-            files: files
-          });
-        };
-      })(this));
+      this.readDir();
     }
     items = this.createFileList(this.state.files);
     return React.createElement("div", {
-      "id": "FileView"
+      "id": "FileView",
+      "onDrop": this.onDropItem
     }, items);
   }
 });
