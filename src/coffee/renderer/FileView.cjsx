@@ -53,7 +53,10 @@ module.exports = React.createClass
         draggable = false
       else
         draggable = true
-      <li key={file.name} onClick={file.onclick} onDrop={@onDropItem} draggable={draggable}
+        ondrag = (e)->
+          e.dataTransfer.setData("text/plain", e.currentTarget.attributes.value.textContent)
+
+      <li key={file.name} onClick={file.onclick} onDrop={@onDropItem} onDragStart={ondrag} draggable={draggable}
           className={cl} value="#{path}#{file.name}" alt="#{indexes}#{i++}">
         <i className={file.className}/> {file.name}
         {inner}

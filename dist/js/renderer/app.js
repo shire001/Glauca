@@ -42,7 +42,9 @@ window.onload = function() {
     render: function() {
       return React.createElement("div", {
         "id": "Contents"
-      }, React.createElement(MainView, null), React.createElement(FileView, {
+      }, React.createElement(MainView, {
+        "path": this.state.projectPath
+      }), React.createElement(FileView, {
         "path": this.state.projectPath,
         "Action": {
           setProperty: this.setProperty

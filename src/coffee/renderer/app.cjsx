@@ -27,7 +27,7 @@ window.onload = () ->
     render: () ->
       return (
         <div id="Contents">
-          <MainView />
+          <MainView path={@state.projectPath} />
           <FileView path={@state.projectPath} Action={setProperty: @setProperty}/>
           <PropertyView type={@state.type}, item={@state.item}/>
           <Timeline />
