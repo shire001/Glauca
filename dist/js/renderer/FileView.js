@@ -13,7 +13,8 @@ update = require('react-addons-update');
 module.exports = React.createClass({
   getInitialState: function() {
     return {
-      files: []
+      files: [],
+      selected: null
     };
   },
   componentDidMount: function() {},
@@ -38,6 +39,30 @@ module.exports = React.createClass({
       };
     })(this));
   },
+  setFiles: function(target, obj) {
+    var cur, cur_inner, diff, i, indexes, j, len, newFiles;
+    if (Array.isArray(target)) {
+      indexes = target;
+    } else {
+      while (!target.classList.contains("fileview-ele")) {
+        target = target.parentNode;
+      }
+      indexes = target.attributes.alt.textContent.split("-");
+    }
+    diff = {};
+    cur_inner = diff;
+    for (j = 0, len = indexes.length; j < len; j++) {
+      i = indexes[j];
+      cur = cur_inner[i] = {};
+      cur_inner = cur.inner = {};
+    }
+    delete cur.inner;
+    cur["$merge"] = obj;
+    newFiles = update(this.state.files, diff);
+    return this.setState({
+      files: newFiles
+    });
+  },
   createFileList: function(files, path, indexes) {
     var i, items;
     if (path == null) {
@@ -55,6 +80,9 @@ module.exports = React.createClass({
           return null;
         }
         cl = "fileview-ele";
+        if (_this.state.selected === ("" + path + file.name)) {
+          cl += " selected";
+        }
         if (file.isDirectory) {
           if (file.isLoaded && file.isOpen) {
             cl += " open";
@@ -127,8 +155,8 @@ module.exports = React.createClass({
                   cur = cur_inner[i] = {};
                   cur_inner = cur.inner = {};
                 }
+                delete cur.inner;
                 if (currentTarget != null ? currentTarget.isOpen : void 0) {
-                  delete cur.inner;
                   cur["$merge"] = {
                     isOpen: false
                   };
@@ -140,7 +168,6 @@ module.exports = React.createClass({
                   p = e.currentTarget.attributes.value.textContent;
                   return _this.readDir("" + _this.props.path + p + "/", (function(c, d) {
                     return function(inner) {
-                      delete c.inner;
                       c["$merge"] = {
                         inner: inner,
                         isLoaded: true,
@@ -158,12 +185,20 @@ module.exports = React.createClass({
           } else {
             f.className = "fa fa-file-o";
             f.onclick = function(e) {
-              var ref, selected;
+              var ref, selected, stat, target;
               selected = {};
-              selected.path = _this.props.path + ((ref = e.currentTarget.attributes.getNamedItem("value")) != null ? ref.value : void 0);
+              path = (ref = e.currentTarget.attributes.getNamedItem("value")) != null ? ref.value : void 0;
+              selected.path = _this.props.path + path;
               selected.name = selected.path.split("/").pop();
+              stat = fs.statSync(selected.path);
+              selected.size = stat.size;
               console.log(selected);
-              return _this.props.Action.setProperty("file", selected);
+              target = e.currentTarget;
+              _this.props.Action.setProperty("file", selected);
+              console.log;
+              return _this.setState({
+                selected: path
+              });
             };
           }
           files.push(f);
