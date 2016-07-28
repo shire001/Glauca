@@ -68,6 +68,7 @@ module.exports = React.createClass({
         return React.createElement("li", {
           "key": file.name,
           "onClick": file.onclick,
+          "onDrop": _this.onDropItem,
           "draggable": draggable,
           "className": cl,
           "value": "" + path + file.name,
@@ -156,6 +157,14 @@ module.exports = React.createClass({
             })(files.length);
           } else {
             f.className = "fa fa-file-o";
+            f.onclick = function(e) {
+              var ref, selected;
+              selected = {};
+              selected.path = _this.props.path + ((ref = e.currentTarget.attributes.getNamedItem("value")) != null ? ref.value : void 0);
+              selected.name = selected.path.split("/").pop();
+              console.log(selected);
+              return _this.props.Action.setProperty("file", selected);
+            };
           }
           files.push(f);
         }

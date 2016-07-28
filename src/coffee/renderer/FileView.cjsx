@@ -90,6 +90,12 @@ module.exports = React.createClass
             ))(files.length)
         else
           f.className = "fa fa-file-o"
+          f.onclick = (e) =>
+            selected = {}
+            selected.path = @props.path + e.currentTarget.attributes.getNamedItem("value")?.value
+            selected.name = selected.path.split("/").pop()
+            console.log selected
+            @props.Action.setProperty "file", selected
         files.push f
       cb files
   render: ->
