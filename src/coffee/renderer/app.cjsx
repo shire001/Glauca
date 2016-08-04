@@ -9,11 +9,15 @@ window.onload = () ->
   ReactDOM = require 'react-dom'
   MainView = require './js/renderer/MainView'
   FileView = require './js/renderer/FileView'
-  FxView = require './js/renderer/FxView'
+  PropertyView = require './js/renderer/PropertyView'
   Timeline = require './js/renderer/Timeline'
   Contents = React.createClass
+    setProperty: (type, item) ->
+      @setState type: type, item: item
     getInitialState: ->
       projectPath: null
+      type: null
+      item: null
     componentDidMount: ->
       ipcRenderer.on 'requestPath-reply', (e, path) =>
         console.log e
@@ -23,9 +27,9 @@ window.onload = () ->
     render: () ->
       return (
         <div id="Contents">
-          <MainView />
-          <FileView path={@state.projectPath}/>
-          <FxView />
+          <MainView path={@state.projectPath} />
+          <FileView path={@state.projectPath} Action={setProperty: @setProperty}/>
+          <PropertyView type={@state.type}, item={@state.item}/>
           <Timeline />
         </div>
       )

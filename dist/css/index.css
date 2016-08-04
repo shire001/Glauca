@@ -55,21 +55,35 @@ body {
 }
 #FileView li {
   display: block;
+  background-color: #c9d2d2;
   padding-top: 2px;
   padding-bottom: 2px;
   padding-left: 2em;
   line-height: 1em;
 }
+#FileView li.selected {
+  background-color: #aab1b1;
+}
 .fileview-ele {
   cursor: pointer;
 }
-#FxView {
+#PropertyView {
   top: 0%;
   left: 75%;
   height: 70%;
   width: 25%;
   position: absolute;
   background-color: #a2d083;
+}
+#FilePropertyView {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  list-style: none;
+}
+#FilePropertyView .property-image {
+  width: 100%;
 }
 #Timeline {
   top: 70%;

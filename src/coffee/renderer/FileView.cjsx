@@ -7,6 +7,7 @@ update = require 'react-addons-update'
 module.exports = React.createClass
   getInitialState: ->
     files: []
+    selected: null
   componentDidMount: ->
   onDropItem: (e) ->
     e.preventDefault()
@@ -21,7 +22,21 @@ module.exports = React.createClass
         console.log err
       else
       @readDir()
-
+  setFiles: (target, obj) ->
+    if Array.isArray target
+      indexes = target
+    else
+      target = target.parentNode while not target.classList.contains("fileview-ele")
+      indexes = target.attributes.alt.textContent.split("-")
+    diff = {}
+    cur_inner = diff
+    for i in indexes
+      cur = cur_inner[i] = {}
+      cur_inner = cur.inner = {}
+    delete cur.inner
+    cur["$merge"] = obj
+    newFiles = update @state.files, diff
+    @setState files: newFiles
   createFileList: (files, path="", indexes="") ->
     i = 0
     items = files.map (file) =>
@@ -29,6 +44,7 @@ module.exports = React.createClass
         i++
         return null
       cl = "fileview-ele"
+      cl += " selected" if @state.selected is "#{path}#{file.name}"
       if file.isDirectory
         if file.isLoaded and file.isOpen
           cl += " open"
@@ -37,7 +53,7 @@ module.exports = React.createClass
         draggable = false
       else
         draggable = true
-      <li key={file.name} onClick={file.onclick} onDrop={@onDropItem} draggable={draggable}
+      <li key={file.name} onClick={file.onclick} onDrop={@onDropItem} onDragStart={ondrag} draggable={draggable}
           className={cl} value="#{path}#{file.name}" alt="#{indexes}#{i++}">
         <i className={file.className}/> {file.name}
         {inner}
@@ -66,30 +82,32 @@ module.exports = React.createClass
               currentTarget_inner = currentTarget.inner
               cur = cur_inner[i] = {}
               cur_inner = cur.inner = {}
+            delete cur.inner
             if currentTarget?.isOpen
-              delete cur.inner
               cur["$merge"] = {isOpen: false}
               newFiles = update @state.files, diff
               @setState files: newFiles
             else
               p = e.currentTarget.attributes.value.textContent
-              # addr = address.concat([n])
               @readDir "#{@props.path}#{p}/", ((c, d) => ((inner) =>
-                # alt = {}
-                # cur = alt
-                # i = 0
-                # while i < addr.length - 1
-                #   cur = cur[addr[i]] = {}
-                #   cur = cur.inner = {}
-                #   i++
-                # cur[addr[addr.length - 1]] = {$merge: {inner: inner, isLoaded: true}}
-                delete c.inner
                 c["$merge"] = {inner: inner, isLoaded: true, isOpen: true}
                 newFiles = update @state.files, d
                 @setState files: newFiles))(cur, diff)
             ))(files.length)
         else
           f.className = "fa fa-file-o"
+          f.onclick = (e) =>
+            selected = {}
+            path = e.currentTarget.attributes.getNamedItem("value")?.value
+            selected.path = @props.path + path
+            selected.name = selected.path.split("/").pop()
+            stat = fs.statSync(selected.path)
+            selected.size = stat.size
+            console.log selected
+            target = e.currentTarget
+            @props.Action.setProperty "file", selected
+            console.log
+            @setState selected: path
         files.push f
       cb files
   render: ->

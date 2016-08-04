@@ -4,19 +4,27 @@ document.ondragover = document.ondrop = function(e) {
 };
 
 window.onload = function() {
-  var Contents, FileView, FxView, MainView, React, ReactDOM, Timeline, ipcRenderer, remote;
+  var Contents, FileView, MainView, PropertyView, React, ReactDOM, Timeline, ipcRenderer, remote;
   remote = require('remote');
   ipcRenderer = require('electron').ipcRenderer;
   React = require('react');
   ReactDOM = require('react-dom');
   MainView = require('./js/renderer/MainView');
   FileView = require('./js/renderer/FileView');
-  FxView = require('./js/renderer/FxView');
+  PropertyView = require('./js/renderer/PropertyView');
   Timeline = require('./js/renderer/Timeline');
   Contents = React.createClass({
+    setProperty: function(type, item) {
+      return this.setState({
+        type: type,
+        item: item
+      });
+    },
     getInitialState: function() {
       return {
-        projectPath: null
+        projectPath: null,
+        type: null,
+        item: null
       };
     },
     componentDidMount: function() {
@@ -34,9 +42,17 @@ window.onload = function() {
     render: function() {
       return React.createElement("div", {
         "id": "Contents"
-      }, React.createElement(MainView, null), React.createElement(FileView, {
+      }, React.createElement(MainView, {
         "path": this.state.projectPath
-      }), React.createElement(FxView, null), React.createElement(Timeline, null));
+      }), React.createElement(FileView, {
+        "path": this.state.projectPath,
+        "Action": {
+          setProperty: this.setProperty
+        }
+      }), React.createElement(PropertyView, {
+        "type": this.state.type,
+        "item": this.state.item
+      }), React.createElement(Timeline, null));
     }
   });
   return ReactDOM.render(React.createElement(Contents, null), document.getElementById('Top'));
