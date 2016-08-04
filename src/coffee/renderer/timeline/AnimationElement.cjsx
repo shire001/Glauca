@@ -7,13 +7,14 @@ class AnimationElement
 
   constructor: (@name, @dom) ->
     @id = "#{AnimationElement.curId++}"
+    @simpleId = "#{@id}"
     @propList = []
     @isOpen = false
     @isSelected = false
 
   addProp: (prop) ->
     if prop instanceof AnimationProperty
-      prop.id = "#{@id}-#{@propList.length}"
+      prop.setId(@)
       @propList.push prop
     else
       console.error "#{prop} is not AnimationProperty class"

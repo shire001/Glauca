@@ -11,6 +11,10 @@ class AnimationProperty
     @isOpen = false
     @isSelected = false
 
+  setId: (parent) ->
+    @simpleId = "#{parent.propList.length}"
+    @id = "#{parent.id}-#{@simpleId}"
+
   addEvent: (event) ->
     if event instanceof AnimationEvent
       event.id = "#{@id}-#{@eventList.length}"

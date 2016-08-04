@@ -28,7 +28,6 @@ module.exports = React.createClass({
     var elem, elemDom, i, j, len, newElem, newState, ref, targetId;
     elemDom = e.target.parentNode.parentNode;
     targetId = elemDom.getAttribute("dir");
-    console.log(targetId);
     newState = {};
     i = 0;
     ref = this.state.animElemList;
@@ -48,11 +47,6 @@ module.exports = React.createClass({
       i++;
     }
     return this.setState(newState);
-  },
-  onClickPropRename: function(e) {
-    var propDom, targetId;
-    propDom = e.target.parentNode.parentNode;
-    return targetId = propDom.getAttribute("dir");
   },
   renameElement: function(e) {
     var elem, elemDom, i, j, len, newElem, newName, newState, ref, targetId;
@@ -86,7 +80,7 @@ module.exports = React.createClass({
     id = element.getAttribute("dir");
     return console.log(id);
   },
-  genElementKeyDom: function(element) {
+  genKeyDom: function(indent, element) {
     var _this, nameDom, renameDom;
     _this = this;
     nameDom = null;
@@ -114,18 +108,23 @@ module.exports = React.createClass({
       });
     }
     return React.createElement("div", {
-      "className": "element",
+      "className": (element instanceof AnimationElement ? "element" : "prop"),
       "dir": element.id,
       "key": element.id
     }, React.createElement("div", {
       "className": (element.isSelected ? "target selected" : "target")
     }, React.createElement("p", {
-      "className": "fa fa-file-text-o",
+      "className": "indent",
+      "style": {
+        width: indent + "px"
+      }
+    }), React.createElement("p", {
+      "className": (element instanceof AnimationElement ? "fa fa-file-text-o" : element.isProperty ? "fa fa-sliders" : "fa fa-magic"),
       "aria-hidden": "true"
     }), nameDom, renameDom), React.createElement("div", {
       "className": "props"
     }, element.propList.map(function(prop) {
-      return _this.genPropKeyDom(10, prop);
+      return _this.genKeyDom(indent + 10, prop);
     })));
   },
   genElementValueDom: function(element) {
@@ -139,33 +138,6 @@ module.exports = React.createClass({
     }), element.propList.map(function(prop) {
       return _this.genPropValueDom(prop);
     }));
-  },
-  genPropKeyDom: function(indent, prop) {
-    var _this;
-    _this = this;
-    return React.createElement("div", {
-      "className": "prop",
-      "dir": prop.id,
-      "key": prop.id
-    }, React.createElement("div", {
-      "className": "target"
-    }, React.createElement("p", {
-      "className": "indent",
-      "width": indent + "px"
-    }), React.createElement("p", {
-      "className": (prop.isProperty ? "fa fa-sliders" : "fa fa-magic"),
-      "aria-hidden": "true"
-    }), React.createElement("p", {
-      "className": "name"
-    }, prop.name), React.createElement("p", {
-      "className": "fa fa-pencil right",
-      "aria-hidden": "true",
-      "onClick": this.onClickPropRename
-    })), React.createElement("div", {
-      "className": "props"
-    }, prop.propList.map(function(p) {
-      return _this.genPropKeyDom(indent + 10, p);
-    })));
   },
   genPropValueDom: function(prop) {
     var _this;
@@ -208,7 +180,7 @@ module.exports = React.createClass({
     };
     _this = this;
     keyDoms = this.state.animElemList.map(function(element) {
-      return _this.genElementKeyDom(element);
+      return _this.genKeyDom(0, element);
     });
     valueDoms = this.state.animElemList.map(function(element) {
       return _this.genElementValueDom(element);

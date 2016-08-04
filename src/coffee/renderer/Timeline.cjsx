@@ -19,7 +19,7 @@ module.exports = React.createClass
   onClickElemRename: (e) ->
     elemDom = e.target.parentNode.parentNode
     targetId = elemDom.getAttribute("dir")
-    console.log targetId
+    # console.log targetId
     newState = {}
     i = 0
     for elem in @state.animElemList
@@ -34,10 +34,18 @@ module.exports = React.createClass
       i++
     @setState newState
 
-  onClickPropRename: (e) ->
-    propDom = e.target.parentNode.parentNode
-    targetId = propDom.getAttribute("dir")
-    #TODO
+  getElementById: (idList, element) ->
+    if !(idList instanceof Array)
+      idList = idList.split "-"
+    id = idList.shift()
+    if element instanceof AnimationElement or element instanceof AnimationProperty
+      element = element.propList
+    for( e of element )
+      if e.simpleId is id
+        if idList.length > 0
+          return @getElementById(idList, e)
+        else
+          return e
 
   renameElement: (e) ->
     elemDom = e.target.parentNode.parentNode
@@ -64,7 +72,7 @@ module.exports = React.createClass
     console.log id
     #TODO
 
-  genElementKeyDom: (element) ->
+  genKeyDom: (indent, element) ->
     _this = @
     nameDom = null
     renameDom = null
@@ -75,16 +83,24 @@ module.exports = React.createClass
       nameDom = <p className="name">{element.name}</p>
       renameDom = <p className="fa fa-pencil right" aria-hidden="true" onClick={_this.onClickElemRename}/>
 
-    <div className="element" dir={element.id} key={element.id}>
+    <div className={ if element instanceof AnimationElement then "element" else "prop" } dir={element.id} key={element.id}>
       <div className={ if element.isSelected then "target selected" else "target" }>
-        <p className="fa fa-file-text-o" aria-hidden="true"/>
+        <p className="indent" style={width:"#{indent}px"}/>
+        <p className={
+          if element instanceof AnimationElement
+            "fa fa-file-text-o"
+          else if element.isProperty
+            "fa fa-sliders"
+          else
+            "fa fa-magic"
+          } aria-hidden="true"/>
         {nameDom}
         {renameDom}
       </div>
       <div className="props">
         {
           element.propList.map (prop) ->
-            _this.genPropKeyDom(10, prop)
+            _this.genKeyDom(indent + 10, prop)
         }
       </div>
     </div>
@@ -98,28 +114,6 @@ module.exports = React.createClass
         element.propList.map (prop) ->
           _this.genPropValueDom(prop)
       }
-    </div>
-
-  genPropKeyDom: (indent, prop) ->
-    _this = @
-    <div className="prop" dir={prop.id} key={prop.id}>
-      <div className="target">
-        <p className="indent" width={indent + "px"}/>
-        <p className={
-          if prop.isProperty
-            "fa fa-sliders"
-          else
-            "fa fa-magic"
-          } aria-hidden="true"/>
-        <p className="name">{prop.name}</p>
-        <p className="fa fa-pencil right" aria-hidden="true" onClick={@onClickPropRename}/>
-      </div>
-      <div className="props">
-        {
-          prop.propList.map (p) ->
-            _this.genPropKeyDom(indent + 10, p)
-        }
-      </div>
     </div>
 
   genPropValueDom: (prop) ->
@@ -146,7 +140,7 @@ module.exports = React.createClass
 
     _this = @
     keyDoms = @state.animElemList.map (element) ->
-      _this.genElementKeyDom(element)
+      _this.genKeyDom(0, element)
 
     valueDoms = @state.animElemList.map (element) ->
       _this.genElementValueDom(element)

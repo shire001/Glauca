@@ -18,7 +18,7 @@ AnimationElement = (function() {
 
   AnimationElement.prototype.addProp = function(prop) {
     if (prop instanceof AnimationProperty) {
-      prop.id = this.id + "-" + this.propList.length;
+      prop.setId(this);
       return this.propList.push(prop);
     } else {
       return console.error(prop + " is not AnimationProperty class");

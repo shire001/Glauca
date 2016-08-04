@@ -16,6 +16,11 @@ AnimationProperty = (function() {
     this.isSelected = false;
   }
 
+  AnimationProperty.prototype.setId = function(parent) {
+    this.simpleId = "" + parent.propList.length;
+    return this.id = parent.id + "-" + this.simpleId;
+  };
+
   AnimationProperty.prototype.addEvent = function(event) {
     if (event instanceof AnimationEvent) {
       event.id = this.id + "-" + this.eventList.length;
