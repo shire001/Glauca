@@ -1,16 +1,8 @@
-var BrowserWindow, Dialog, Menu, app, createProject, ipcMain, mainWindow, menu, name, path, showSetting;
+var BrowserWindow, Dialog, Menu, app, captureWindow, crashReporter, createProject, fs, ipcMain, mainWindow, menu, name, path, ref, showSetting;
 
-app = require('app');
+ref = require('electron'), app = ref.app, BrowserWindow = ref.BrowserWindow, Menu = ref.Menu, Dialog = ref.Dialog, ipcMain = ref.ipcMain, crashReporter = ref.crashReporter;
 
-BrowserWindow = require('browser-window');
-
-Menu = require('menu');
-
-Dialog = require('dialog');
-
-ipcMain = require('electron').ipcMain;
-
-require('crash-reporter').start();
+fs = require('fs');
 
 mainWindow = null;
 
@@ -22,18 +14,31 @@ app.on('window-all-closed', function() {
 
 path = null;
 
+path = "/Users/tsunade/Documents/test/";
+
 createProject = function(cb) {
-  return Dialog.showSaveDialog(function(p) {
-    var fs;
-    fs = require('fs');
-    path = p + '/';
-    return fs.mkdir(p, function(err) {
-      if (err) {
-        console.log(err);
-      }
-      return cb();
+  if (path != null) {
+    return cb();
+  } else {
+    return Dialog.showSaveDialog(function(p) {
+      path = p + '/';
+      return fs.mkdir(p, function(err) {
+        if (err) {
+          console.log(err);
+        }
+        return cb();
+      });
     });
+  }
+};
+
+captureWindow = function() {
+  console.log("capture");
+  mainWindow.capturePage(function(image) {
+    console.log(image);
+    return fs.writeFile(path + "dist/screenshot.bmp", image.toBitmap());
   });
+  return mainWindow.webContents.send('capture', 'start');
 };
 
 ipcMain.on('requestPath-message', function(e) {
@@ -79,7 +84,11 @@ menu = Menu.buildFromTemplate([
       {
         label: 'New Project',
         accelerator: 'CmdOrCtrl+N',
-        click: this.createProject
+        click: createProject
+      }, {
+        label: 'Capture',
+        accelerator: 'CmdOrCtrl+Shift+C',
+        click: captureWindow
       }
     ]
   }, {
@@ -183,15 +192,17 @@ menu = Menu.buildFromTemplate([
 ]);
 
 app.on('ready', function() {
-  return createProject(function() {
+  var cb;
+  cb = function() {
     mainWindow = new BrowserWindow({
       width: 800,
       height: 600
     });
-    mainWindow.loadUrl('file://' + __dirname + '/index.html');
+    mainWindow.loadURL('file://' + __dirname + '/index.html');
     Menu.setApplicationMenu(menu);
     return mainWindow.on('closed', function() {
       return mainWindow = null;
     });
-  });
+  };
+  return createProject(cb);
 });

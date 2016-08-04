@@ -3,7 +3,7 @@ document.ondragover = document.ondrop = (e) ->
   false
 
 window.onload = () ->
-  remote = require 'remote'
+  remote = require('electron').remote
   {ipcRenderer} = require 'electron'
   React = require 'react'
   ReactDOM = require 'react-dom'
@@ -19,11 +19,15 @@ window.onload = () ->
       type: null
       item: null
     componentDidMount: ->
-      ipcRenderer.on 'requestPath-reply', (e, path) =>
-        console.log e
+      ipcRenderer.on 'requestPath-reply', (err, path) =>
+        console.log err if err?
         console.log path
         @setState projectPath: path
       ipcRenderer.send 'requestPath-message', ''
+
+      ipcRenderer.on 'capture', (err, type) =>
+        console.log type
+
     render: () ->
       return (
         <div id="Contents">
