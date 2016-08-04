@@ -15,7 +15,8 @@
     "mime-types": "^2.1.11",
     "react": "^15.2.1",
     "react-addons-update": "^15.2.1",
-    "react-dom": "^15.2.1"
+    "react-dom": "^15.2.1",
+    "gsap": "^1.19.0"
   },
   "devDependencies": {
     "coffee-script": "^1.10.0",

@@ -1,4 +1,4 @@
-TimelineMax = require "../../vendor/gsap/uncompressed/TimelineMax.js"
+TimelineMax = require("gsap").TimelineMax
 AnimationElement = require "./timeline/AnimationElement.js"
 AnimationProperty = require "./timeline/AnimationProperty.js"
 update = require 'react-addons-update'
@@ -40,7 +40,7 @@ module.exports = React.createClass
     id = idList.shift()
     if element instanceof AnimationElement or element instanceof AnimationProperty
       element = element.propList
-    for( e of element )
+    for e of element
       if e.simpleId is id
         if idList.length > 0
           return @getElementById(idList, e)
@@ -145,7 +145,7 @@ module.exports = React.createClass
     valueDoms = @state.animElemList.map (element) ->
       _this.genElementValueDom(element)
 
-    <div id="Timeline">
+    <div id="Timeline" onClick={onClick}>
       <div id="KeyTimeline">
         <div className="menu">
         </div>

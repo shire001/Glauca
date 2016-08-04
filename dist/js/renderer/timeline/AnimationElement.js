@@ -11,6 +11,7 @@ AnimationElement = (function() {
     this.name = name;
     this.dom = dom;
     this.id = "" + (AnimationElement.curId++);
+    this.simpleId = "" + this.id;
     this.propList = [];
     this.isOpen = false;
     this.isSelected = false;

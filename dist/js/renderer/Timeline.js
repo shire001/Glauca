@@ -1,6 +1,6 @@
 var AnimationElement, AnimationProperty, TimelineMax, e1, e2, update;
 
-TimelineMax = require("../../vendor/gsap/uncompressed/TimelineMax.js");
+TimelineMax = require("gsap").TimelineMax;
 
 AnimationElement = require("./timeline/AnimationElement.js");
 
@@ -47,6 +47,25 @@ module.exports = React.createClass({
       i++;
     }
     return this.setState(newState);
+  },
+  getElementById: function(idList, element) {
+    var e, id;
+    if (!(idList instanceof Array)) {
+      idList = idList.split("-");
+    }
+    id = idList.shift();
+    if (element instanceof AnimationElement || element instanceof AnimationProperty) {
+      element = element.propList;
+    }
+    for (e in element) {
+      if (e.simpleId === id) {
+        if (idList.length > 0) {
+          return this.getElementById(idList, e);
+        } else {
+          return e;
+        }
+      }
+    }
   },
   renameElement: function(e) {
     var elem, elemDom, i, j, len, newElem, newName, newState, ref, targetId;
@@ -186,7 +205,8 @@ module.exports = React.createClass({
       return _this.genElementValueDom(element);
     });
     return React.createElement("div", {
-      "id": "Timeline"
+      "id": "Timeline",
+      "onClick": onClick
     }, React.createElement("div", {
       "id": "KeyTimeline"
     }, React.createElement("div", {
