@@ -4,7 +4,7 @@ React = require('react');
 
 fs = require('fs');
 
-remote = require('remote');
+remote = require('electron').remote;
 
 exec = remote.require('child_process').exec;
 

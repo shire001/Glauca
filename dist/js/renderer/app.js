@@ -5,7 +5,7 @@ document.ondragover = document.ondrop = function(e) {
 
 window.onload = function() {
   var Contents, FileView, MainView, PropertyView, React, ReactDOM, Timeline, ipcRenderer, remote;
-  remote = require('remote');
+  remote = require('electron').remote;
   ipcRenderer = require('electron').ipcRenderer;
   React = require('react');
   ReactDOM = require('react-dom');
@@ -29,15 +29,22 @@ window.onload = function() {
     },
     componentDidMount: function() {
       ipcRenderer.on('requestPath-reply', (function(_this) {
-        return function(e, path) {
-          console.log(e);
+        return function(err, path) {
+          if (err != null) {
+            console.log(err);
+          }
           console.log(path);
           return _this.setState({
             projectPath: path
           });
         };
       })(this));
-      return ipcRenderer.send('requestPath-message', '');
+      ipcRenderer.send('requestPath-message', '');
+      return ipcRenderer.on('capture', (function(_this) {
+        return function(err, type) {
+          return console.log(type);
+        };
+      })(this));
     },
     render: function() {
       return React.createElement("div", {

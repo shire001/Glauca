@@ -1,10 +1,7 @@
-app = require('app')
-BrowserWindow = require('browser-window')
-Menu = require('menu')
-Dialog = require('dialog')
-{ipcMain} = require 'electron'
+{app, BrowserWindow, Menu, Dialog, ipcMain, crashReporter} = require('electron')
+fs = require 'fs'
 
-require('crash-reporter').start()
+# crashReporter.start()
 
 mainWindow = null
 
@@ -13,14 +10,24 @@ app.on('window-all-closed', () ->
     app.quit()
 )
 path = null
+path = "/Users/tsunade/Documents/test/" #for debugging
 createProject =  (cb) ->
-  Dialog.showSaveDialog (p)->
-    fs = require 'fs'
-    path = p + '/'
-    fs.mkdir p, (err)->
-      if err
-        console.log err
-      cb()
+  if path?
+    cb()
+  else
+    Dialog.showSaveDialog (p)->
+      path = p + '/'
+      fs.mkdir p, (err)->
+        if err
+          console.log err
+        cb()
+
+captureWindow = () ->
+  console.log "capture"
+  mainWindow.capturePage (image) ->
+    console.log image
+    fs.writeFile "#{path}dist/screenshot.bmp", image.toBitmap()
+  mainWindow.webContents.send('capture', 'start')
 
 ipcMain.on 'requestPath-message', (e) ->
   e.sender.send 'requestPath-reply', path
@@ -62,7 +69,12 @@ menu = Menu.buildFromTemplate([
       {
         label: 'New Project',
         accelerator: 'CmdOrCtrl+N',
-        click: @createProject
+        click: createProject
+      },
+      {
+        label: 'Capture',
+        accelerator: 'CmdOrCtrl+Shift+C',
+        click: captureWindow
       },
     ]
   },
@@ -166,16 +178,17 @@ menu = Menu.buildFromTemplate([
       },
     ]
   },
-]);
+])
 
 app.on('ready', () ->
   # ブラウザ(Chromium)の起動, 初期画面のロード
-  createProject ->
+  cb = ->
     mainWindow = new BrowserWindow({width: 800, height: 600})
-    mainWindow.loadUrl('file://' + __dirname + '/index.html')
+    mainWindow.loadURL('file://' + __dirname + '/index.html')
     Menu.setApplicationMenu(menu)
 
     mainWindow.on('closed', () ->
       mainWindow = null
     )
+  createProject cb
 )
