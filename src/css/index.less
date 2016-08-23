@@ -94,22 +94,26 @@ html, body {
   width: 100%;
   position: absolute;
   background-color: #b9b1b1;
+  overflow-y: scroll;
 
   @elementHeight: 25px;
-
-  .right {
-    float: right;
-  }
 
   #KeyTimeline {
     display: inline-flex;
     flex-direction: column;
-    height: 100%;
+    min-height: 100%;
     width: calc(~'30% - 1px');
     position: absolute;
     background-color: #464646;
     border-right: 1px solid #323232;
 
+    .menu {
+      display: flex;
+      height: @elementHeight;
+      color: white;
+      background-color: #383838;
+      border-bottom: thin solid #585858;
+    }
     .element {
       min-width: 100%;
       border-top: thin solid #585858;
@@ -119,7 +123,7 @@ html, body {
         color: white;
         background-color: #383838;
         border-bottom: thin solid #585858;
-        p {
+        .icon {
           margin: 0;
           padding: 0 5px;
           line-height: @elementHeight;
@@ -138,24 +142,97 @@ html, body {
   }
 
   #ValueTimeline {
-    display: inline-flex;
-    flex-direction: column;
     left: 30%;
-    height: 100%;
+    min-height: 100%;
     width: 70%;
     position: absolute;
     background-color: #504e4e;
+    overflow-x: scroll;
 
+    #ValueTimelineInner {
+      height: 100%;
+      min-width: 200%;
+      display: inline-flex;
+      flex-direction: column;
+    }
+
+    #Timebar {
+      width: 100%;
+      height: @elementHeight;
+      color: #bbbbbb;
+      font-size: 10px;
+      background-color: #383838;
+      border-bottom: thin solid #585858;
+      display: inline-flex;
+      .time {
+        position: absolute;
+        margin: 0;
+        width: 30px;
+        text-align: center;
+        line-height: @elementHeight;
+      }
+    }
     .value {
-      min-width: 100%;
+      width: 100%;
       border-top: thin solid #585858;
       .prop_value {
         height: @elementHeight;
         color: white;
         background-color: #3e3e3e;
         border-bottom: thin solid #585858;
+        .event {
+          position: absolute;
+          .start, .end{
+            color: rgb(106, 255, 255);
+            position: absolute;
+            margin: 0;
+            text-align: center;
+            line-height: @elementHeight;
+          }
+          .line {
+            left: 12.5px;
+            top: @elementHeight / 2 - 1.5;
+            height: 3px;
+            background-color: rgb(159, 228, 228);
+            position: absolute;
+          }
+        }
       }
     }
+  }
+
+  .event-tip {
+    padding: 5px;
+    position: fixed;
+    background-color: white;
+    border-radius: 2px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    .event-prop {
+      display: inline-flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      button {
+        color: white;
+        border-radius: 3px;
+        border: thin solid rgb(64, 95, 119);
+        width: 100%;
+        background-color: rgb(79, 115, 144);
+      }
+      input {
+        width: 80px;
+        text-align: right;
+      }
+      p {
+        margin: 0;
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .right {
+    margin-left: auto !important;
   }
 }
 

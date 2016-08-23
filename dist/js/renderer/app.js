@@ -24,7 +24,8 @@ window.onload = function() {
       return {
         projectPath: null,
         type: null,
-        item: null
+        item: null,
+        animElemList: []
       };
     },
     componentDidMount: function() {
@@ -46,6 +47,9 @@ window.onload = function() {
         };
       })(this));
     },
+    updateState: function(newState) {
+      return this.setState(newState);
+    },
     render: function() {
       return React.createElement("div", {
         "id": "Contents"
@@ -59,7 +63,11 @@ window.onload = function() {
       }), React.createElement(PropertyView, {
         "type": this.state.type,
         "item": this.state.item
-      }), React.createElement(Timeline, null));
+      }), React.createElement(Timeline, {
+        "parentState": this.state,
+        "animElemList": this.state.animElemList,
+        "setParentState": this.updateState
+      }));
     }
   });
   return ReactDOM.render(React.createElement(Contents, null), document.getElementById('Top'));

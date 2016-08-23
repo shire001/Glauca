@@ -4,7 +4,7 @@ AnimationEvent = require "./AnimationEvent.js"
 class AnimationProperty
 #  @deletedPropStack
 
-  constructor: (@name, @target, @isProperty = false) ->
+  constructor: (@name, @dom, @isProperty = false) ->
     @id = null;
     @propList = []
     @eventList = []
@@ -15,10 +15,12 @@ class AnimationProperty
     @simpleId = "#{parent.propList.length}"
     @id = "#{parent.id}-#{@simpleId}"
 
-  addEvent: (event) ->
+  addEvent: (event, react) ->
     if event instanceof AnimationEvent
-      event.id = "#{@id}-#{@eventList.length}"
-      eventList.push event
+      newElem =
+        eventList:
+          "$push": [event]
+      react.props.setParentState react.updateAnimElemList(@id, [newElem], true)
     else
       console.error "#{event} is not AnimationEvent class"
 
@@ -29,6 +31,12 @@ class AnimationProperty
         delete @eventList[i]
       i++
 
-
+  compile: () ->
+    code = ""
+    for prop in @propList
+      code += prop.compile()
+    for event in @eventList
+      code += event.compile()
+    return code
 
 module.exports = AnimationProperty

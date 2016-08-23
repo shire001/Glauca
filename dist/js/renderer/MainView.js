@@ -51,7 +51,7 @@ module.exports = React.createClass({
       "id": "MainView",
       "onDrop": this.onDropItem
     }, React.createElement("svg", null, React.createElement("circle", {
-      "id": "e1",
+      "name": "e1",
       "cx": "50",
       "cy": "50",
       "r": "50",
@@ -59,7 +59,7 @@ module.exports = React.createClass({
       "fill": "white",
       "strokeWidth": "5"
     }), React.createElement("circle", {
-      "id": "e2",
+      "name": "e2",
       "cx": "150",
       "cy": "50",
       "r": "50",
@@ -67,7 +67,7 @@ module.exports = React.createClass({
       "fill": "white",
       "strokeWidth": "5"
     }), React.createElement("circle", {
-      "id": "e3",
+      "name": "e3",
       "cx": "250",
       "cy": "50",
       "r": "50",

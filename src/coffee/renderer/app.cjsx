@@ -18,6 +18,7 @@ window.onload = () ->
       projectPath: null
       type: null
       item: null
+      animElemList: []
     componentDidMount: ->
       ipcRenderer.on 'requestPath-reply', (err, path) =>
         console.log err if err?
@@ -28,13 +29,16 @@ window.onload = () ->
       ipcRenderer.on 'capture', (err, type) =>
         console.log type
 
+    updateState: (newState) ->
+      @setState newState
+
     render: () ->
       return (
         <div id="Contents">
           <MainView path={@state.projectPath} />
           <FileView path={@state.projectPath} Action={setProperty: @setProperty}/>
           <PropertyView type={@state.type}, item={@state.item}/>
-          <Timeline />
+          <Timeline parentState={@state} animElemList={@state.animElemList} setParentState={@updateState}/>
         </div>
       )
   ReactDOM.render(

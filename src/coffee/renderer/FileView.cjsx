@@ -62,6 +62,7 @@ module.exports = React.createClass
   readDir: (path=@props.path, cb=((files) => @setState files: files)) ->
     fs.readdir path, (err, ret) =>
       files = []
+      return unless ret?
       for file in ret
         f = {}
         f.name = file

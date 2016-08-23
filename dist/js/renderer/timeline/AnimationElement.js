@@ -17,27 +17,51 @@ AnimationElement = (function() {
     this.isSelected = false;
   }
 
-  AnimationElement.prototype.addProp = function(prop) {
+  AnimationElement.prototype.addProp = function(prop, react) {
+    var newElem;
     if (prop instanceof AnimationProperty) {
       prop.setId(this);
-      return this.propList.push(prop);
+      prop.isRename = true;
+      newElem = {
+        propList: {
+          "$push": [prop]
+        }
+      };
+      return react.props.setParentState(react.updateAnimElemList(this.id, [newElem], true));
     } else {
       return console.error(prop + " is not AnimationProperty class");
     }
   };
 
   AnimationElement.prototype.deleteProp = function(id) {
-    var i, j, len, prop, results;
+    var i, j, len, newElem, prop, results;
     i = 0;
     results = [];
     for (j = 0, len = propList.length; j < len; j++) {
       prop = propList[j];
       if (prop.id === id) {
-        delete this.propList[i];
+        newElem = {
+          propList: []
+        };
+        newElem.propList[i] = {
+          "$set": void 0
+        };
+        react.props.setParentState(react.updateAnimElemList(this.id, [newElem], true));
       }
       results.push(i++);
     }
     return results;
+  };
+
+  AnimationElement.prototype.compile = function() {
+    var code, j, len, prop, ref;
+    code = "";
+    ref = this.propList;
+    for (j = 0, len = ref.length; j < len; j++) {
+      prop = ref[j];
+      code += prop.compile();
+    }
+    return code;
   };
 
   return AnimationElement;

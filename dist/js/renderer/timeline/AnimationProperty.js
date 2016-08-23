@@ -5,9 +5,9 @@ AnimationElement = require("./AnimationElement.js");
 AnimationEvent = require("./AnimationEvent.js");
 
 AnimationProperty = (function() {
-  function AnimationProperty(name, target, isProperty) {
+  function AnimationProperty(name, dom, isProperty) {
     this.name = name;
-    this.target = target;
+    this.dom = dom;
     this.isProperty = isProperty != null ? isProperty : false;
     this.id = null;
     this.propList = [];
@@ -21,10 +21,15 @@ AnimationProperty = (function() {
     return this.id = parent.id + "-" + this.simpleId;
   };
 
-  AnimationProperty.prototype.addEvent = function(event) {
+  AnimationProperty.prototype.addEvent = function(event, react) {
+    var newElem;
     if (event instanceof AnimationEvent) {
-      event.id = this.id + "-" + this.eventList.length;
-      return eventList.push(event);
+      newElem = {
+        eventList: {
+          "$push": [event]
+        }
+      };
+      return react.props.setParentState(react.updateAnimElemList(this.id, [newElem], true));
     } else {
       return console.error(event + " is not AnimationEvent class");
     }
@@ -43,6 +48,22 @@ AnimationProperty = (function() {
       results.push(i++);
     }
     return results;
+  };
+
+  AnimationProperty.prototype.compile = function() {
+    var code, event, j, k, len, len1, prop, ref, ref1;
+    code = "";
+    ref = this.propList;
+    for (j = 0, len = ref.length; j < len; j++) {
+      prop = ref[j];
+      code += prop.compile();
+    }
+    ref1 = this.eventList;
+    for (k = 0, len1 = ref1.length; k < len1; k++) {
+      event = ref1[k];
+      code += event.compile();
+    }
+    return code;
   };
 
   return AnimationProperty;

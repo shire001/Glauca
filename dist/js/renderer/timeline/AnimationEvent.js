@@ -1,37 +1,44 @@
-var AnimationElement, AnimationEvent, AnimationProperty;
+var AnimationElement, AnimationEvent, AnimationProperty, AttrDict;
 
 AnimationProperty = require("./AnimationProperty.js");
 
 AnimationElement = require("./AnimationElement.js");
 
+AttrDict = require("../AttrDict.js");
+
 AnimationEvent = (function() {
-  var bezier, duration, endValue, id, name, startValue, target, time;
+  var id, simpleId;
 
   id = -1;
 
-  name = null;
+  simpleId = null;
 
-  target = null;
-
-  time = 0;
-
-  startValue = null;
-
-  endValue = null;
-
-  bezier = null;
-
-  duration = 0;
-
-  function AnimationEvent(target1, name1, startValue1, endValue1, time1, duration1, bezier1) {
+  function AnimationEvent(target1, startValue, endValue, time, duration, bezier) {
     this.target = target1;
-    this.name = name1;
-    this.startValue = startValue1;
-    this.endValue = endValue1;
-    this.time = time1;
-    this.duration = duration1;
-    this.bezier = bezier1;
+    this.startValue = startValue;
+    this.endValue = endValue;
+    this.time = time;
+    this.duration = duration;
+    this.bezier = bezier;
   }
+
+  AnimationEvent.prototype.setId = function() {
+    this.id = this.target.id + "-e" + this.target.eventList.length;
+    return this.simpleId = "e" + this.target.eventList.length;
+  };
+
+  AnimationEvent.prototype.compile = function() {
+    var endVars, startVars, target;
+    target = "window.element['" + (this.target.dom.getAttribute("name")) + "']";
+    if (AttrDict.includes(this.target.name)) {
+      startVars = "{attr:{" + this.target.name + ":" + this.startValue + "}}";
+      endVars = "{attr:{" + this.target.name + ":" + this.endValue + "}}";
+    } else {
+      startVars = "{" + this.target.name + ":" + this.startValue + "}";
+      endVars = "{" + this.target.name + ":" + this.endValue + "}";
+    }
+    return " .fromTo(" + target + ", " + this.duration + ", " + startVars + ", " + endVars + ", " + this.time + ")\n";
+  };
 
   return AnimationEvent;
 

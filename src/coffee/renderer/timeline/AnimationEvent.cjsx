@@ -1,16 +1,25 @@
 AnimationProperty = require "./AnimationProperty.js"
 AnimationElement = require "./AnimationElement.js"
+AttrDict = require "../AttrDict.js"
 
 class AnimationEvent
   id = -1
-  name = null
-  target = null
-  time = 0
-  startValue = null
-  endValue = null
-  bezier = null
-  duration = 0
+  simpleId = null
 
-  constructor: (@target, @name, @startValue, @endValue, @time, @duration, @bezier) ->
+  constructor: (@target, @startValue, @endValue, @time, @duration, @bezier) ->
+
+  setId: () ->
+    @id = "#{@target.id}-e#{@target.eventList.length}"
+    @simpleId = "e#{@target.eventList.length}"
+
+  compile: () ->
+    target = "window.element['#{@target.dom.getAttribute "name"}']"
+    if AttrDict.includes @target.name
+      startVars = "{attr:{#{@target.name}:#{@startValue}}}"
+      endVars = "{attr:{#{@target.name}:#{@endValue}}}"
+    else
+      startVars = "{#{@target.name}:#{@startValue}}"
+      endVars = "{#{@target.name}:#{@endValue}}"
+    return " .fromTo(#{target}, #{@duration}, #{startVars}, #{endVars}, #{@time})\n"
 
 module.exports = AnimationEvent

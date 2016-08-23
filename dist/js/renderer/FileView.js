@@ -129,6 +129,9 @@ module.exports = React.createClass({
       return function(err, ret) {
         var f, file, files, j, len;
         files = [];
+        if (ret == null) {
+          return;
+        }
         for (j = 0, len = ret.length; j < len; j++) {
           file = ret[j];
           f = {};
