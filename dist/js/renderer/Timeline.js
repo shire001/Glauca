@@ -456,7 +456,8 @@ module.exports = React.createClass({
         left: "0px",
         width: width + "px"
       },
-      "key": event.id + "-set"
+      "key": event.id + "-set",
+      "onDrag": this.dragEvent
     }) : (dom = [], dom.push(React.createElement("div", {
       "className": "line",
       "style": {

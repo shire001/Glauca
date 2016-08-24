@@ -74,7 +74,7 @@ module.exports = React.createClass({
     i = 0;
     items = files.map((function(_this) {
       return function(file) {
-        var cl, draggable, inner;
+        var cl, draggable, inner, ondrag;
         if (file.name[0] === ".") {
           i++;
           return null;
@@ -92,6 +92,9 @@ module.exports = React.createClass({
           draggable = false;
         } else {
           draggable = true;
+          ondrag = function(e) {
+            return e.dataTransfer.setData("text/plain", e.currentTarget.attributes.value.textContent);
+          };
         }
         return React.createElement("li", {
           "key": file.name,

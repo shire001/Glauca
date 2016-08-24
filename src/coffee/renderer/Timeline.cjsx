@@ -345,7 +345,7 @@ module.exports = React.createClass
     <div className="event" key={event.id} alt={event.id} style={left:"#{startX}px"} onContextMenu={@onEventRightClick} onDrag={@dragEvent}>
       {
         if event.duration is 0
-          <div className="fa fa-circle start" value={event.startValue} style={left:"0px", width:"#{width}px"} key={"#{event.id}-set"}/>
+          <div className="fa fa-circle start" value={event.startValue} style={left:"0px", width:"#{width}px"} key={"#{event.id}-set"} onDrag={@dragEvent}/>
         else
           dom = []
           dom.push <div className="line" style={width:"#{endX - 10}px"} value={event.duration} key={"#{event.id}-line"}/>
