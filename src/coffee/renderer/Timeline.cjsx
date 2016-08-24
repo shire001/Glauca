@@ -22,7 +22,7 @@ compileAnimation = (elems) ->
     code += elem.compile()
   window.element = []
   for elem in elems
-    window.element[elem.name] = elem.dom
+    window.element[elem.id] = document.getElementById "AnimationElement##{elem.id}"
   console.log window.element, code
   eval code
   return code
@@ -180,7 +180,7 @@ module.exports = React.createClass
     elemDom = e.target.parentNode.parentNode
     targetId = elemDom.getAttribute("alt")
     element = @getAnimElemById targetId
-    newProp = new AnimationProperty("property#{element.propList.length}", element.dom, true)
+    newProp = new AnimationProperty("property#{element.propList.length}", element, true)
     element.addProp(newProp, @)
 
   genKeyDom: (indent, element) ->
@@ -207,7 +207,10 @@ module.exports = React.createClass
           } aria-hidden="true"/>
         {nameDom}
         {renameDom}
-        <p className="icon fa fa-plus right" aria-hidden="true" onClick={_this.onClickAddProp}/>
+        {
+          if !element.isProperty
+            <p className="icon fa fa-plus right" aria-hidden="true" onClick={_this.onClickAddProp}/>
+        }
       </div>
       <div className="props">
         {
@@ -367,7 +370,7 @@ module.exports = React.createClass
     curIndex = @props.parentState.animElemList.length
     for element in elements
       if !(@containElement element)
-        newState[curIndex] = new AnimationElement(element.getAttribute("name"), element)
+        newState[curIndex] = new AnimationElement(element.getAttribute("name"))
         curIndex++
     newState =
       animElemList:

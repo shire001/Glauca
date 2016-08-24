@@ -31,7 +31,7 @@ compileAnimation = function(elems) {
   window.element = [];
   for (l = 0, len1 = elems.length; l < len1; l++) {
     elem = elems[l];
-    window.element[elem.name] = elem.dom;
+    window.element[elem.id] = document.getElementById("AnimationElement#" + elem.id);
   }
   console.log(window.element, code);
   eval(code);
@@ -241,7 +241,7 @@ module.exports = React.createClass({
     elemDom = e.target.parentNode.parentNode;
     targetId = elemDom.getAttribute("alt");
     element = this.getAnimElemById(targetId);
-    newProp = new AnimationProperty("property" + element.propList.length, element.dom, true);
+    newProp = new AnimationProperty("property" + element.propList.length, element, true);
     return element.addProp(newProp, this);
   },
   genKeyDom: function(indent, element) {
@@ -285,11 +285,11 @@ module.exports = React.createClass({
     }), React.createElement("p", {
       "className": (element instanceof AnimationElement ? "icon fa fa-file-text-o" : element.isProperty ? "icon fa fa-sliders" : "icon fa fa-magic"),
       "aria-hidden": "true"
-    }), nameDom, renameDom, React.createElement("p", {
+    }), nameDom, renameDom, (!element.isProperty ? React.createElement("p", {
       "className": "icon fa fa-plus right",
       "aria-hidden": "true",
       "onClick": _this.onClickAddProp
-    })), React.createElement("div", {
+    }) : void 0)), React.createElement("div", {
       "className": "props"
     }, element.propList.map(function(prop) {
       return _this.genKeyDom(indent + 10, prop);
@@ -504,7 +504,7 @@ module.exports = React.createClass({
     for (k = 0, len = elements.length; k < len; k++) {
       element = elements[k];
       if (!(this.containElement(element))) {
-        newState[curIndex] = new AnimationElement(element.getAttribute("name"), element);
+        newState[curIndex] = new AnimationElement(element.getAttribute("name"));
         curIndex++;
       }
     }

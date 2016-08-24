@@ -5,9 +5,9 @@ AnimationElement = require("./AnimationElement.js");
 AnimationEvent = require("./AnimationEvent.js");
 
 AnimationProperty = (function() {
-  function AnimationProperty(name, dom, isProperty) {
+  function AnimationProperty(name, element, isProperty) {
     this.name = name;
-    this.dom = dom;
+    this.element = element;
     this.isProperty = isProperty != null ? isProperty : false;
     this.id = null;
     this.propList = [];

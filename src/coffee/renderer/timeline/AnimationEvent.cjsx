@@ -13,7 +13,7 @@ class AnimationEvent
     @simpleId = "e#{@target.eventList.length}"
 
   compile: () ->
-    target = "window.element['#{@target.dom.getAttribute "name"}']"
+    target = "window.element['#{@target.element.id}']"
     if AttrDict.includes @target.name
       startVars = "{attr:{#{@target.name}:#{@startValue}}}"
       endVars = "{attr:{#{@target.name}:#{@endValue}}}"

@@ -7,9 +7,8 @@ AnimationEvent = require("./AnimationEvent.js");
 AnimationElement = (function() {
   AnimationElement.curId = 0;
 
-  function AnimationElement(name, dom) {
+  function AnimationElement(name) {
     this.name = name;
-    this.dom = dom;
     this.id = "" + (AnimationElement.curId++);
     this.simpleId = "" + this.id;
     this.propList = [];

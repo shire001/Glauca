@@ -4,7 +4,7 @@ AnimationEvent = require "./AnimationEvent.js"
 class AnimationProperty
 #  @deletedPropStack
 
-  constructor: (@name, @dom, @isProperty = false) ->
+  constructor: (@name, @element, @isProperty = false) ->
     @id = null;
     @propList = []
     @eventList = []

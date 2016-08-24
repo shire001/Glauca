@@ -4,6 +4,7 @@ document.ondragover = document.ondrop = (e) ->
 
 window.onload = () ->
   remote = require('electron').remote
+  update = require 'react-addons-update'
   {ipcRenderer} = require 'electron'
   React = require 'react'
   ReactDOM = require 'react-dom'
@@ -32,10 +33,17 @@ window.onload = () ->
     updateState: (newState) ->
       @setState newState
 
+    addAnimElem: (elem) ->
+      newState =
+        animElemList:
+          "$push": [elem]
+      newState = update @state, newState
+      @setState newState
+
     render: () ->
       return (
         <div id="Contents">
-          <MainView path={@state.projectPath} />
+          <MainView path={@state.projectPath} Action={setParentState: @updateState, addAnimElem: @addAnimElem}/>
           <FileView path={@state.projectPath} Action={setProperty: @setProperty}/>
           <PropertyView type={@state.type}, item={@state.item}/>
           <Timeline parentState={@state} animElemList={@state.animElemList} setParentState={@updateState}/>

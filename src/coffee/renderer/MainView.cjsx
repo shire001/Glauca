@@ -1,4 +1,8 @@
 React = require 'react'
+update = require 'react-addons-update'
+AnimationElement = require "./timeline/AnimationElement.js"
+AnimationProperty = require "./timeline/AnimationProperty.js"
+AnimationEvent = require "./timeline/AnimationEvent.js"
 
 module.exports = React.createClass
   getInitialState: ->
@@ -18,16 +22,26 @@ module.exports = React.createClass
         y: y - image.height/2
         height: image.height
         width: image.width
+        animElem: null
+      @props.Action.addAnimElem @createNewAnimElem item
       @setState items: @state.items.concat(item)
       console.log @props.path, path
+  createNewAnimElem: (item) ->
+    newElem = new AnimationElement(item.path)
+    item.animElem = newElem
+    for prop in ["x", "y", "height", "width"]
+      newProp = new AnimationProperty(prop, newElem, true)
+      newProp.setId newElem
+      newEvent = new AnimationEvent(newProp, item[prop], item[prop], 0, 0, null)
+      newEvent.setId()
+      newProp.eventList.push newEvent
+      newElem.propList.push newProp
+    return newElem
   render: ->
     items = @state.items.map (item) =>
-      <image xlinkHref={"#{@props.path}#{item.path}"} x={item.x} y={item.y} height={item.height} width={item.width} />
+      <image xlinkHref={"#{@props.path}#{item.path}"} x={item.x} y={item.y} height={item.height} width={item.width} id={"AnimationElement##{item.animElem.id}"} key={"AnimationElement#{item.animElem.id}"}/>
     <div id="MainView" onDrop={@onDropItem}>
       <svg>
-        <circle name="e1" cx="50" cy="50" r="50" stroke="blue" fill="white" strokeWidth="5"/>
-        <circle name="e2" cx="150" cy="50" r="50" stroke="red" fill="white" strokeWidth="5"/>
-        <circle name="e3" cx="250" cy="50" r="50" stroke="green" fill="white" strokeWidth="5"/>
         {items}
       </svg>
     </div>

@@ -4,8 +4,9 @@ document.ondragover = document.ondrop = function(e) {
 };
 
 window.onload = function() {
-  var Contents, FileView, MainView, PropertyView, React, ReactDOM, Timeline, ipcRenderer, remote;
+  var Contents, FileView, MainView, PropertyView, React, ReactDOM, Timeline, ipcRenderer, remote, update;
   remote = require('electron').remote;
+  update = require('react-addons-update');
   ipcRenderer = require('electron').ipcRenderer;
   React = require('react');
   ReactDOM = require('react-dom');
@@ -50,11 +51,25 @@ window.onload = function() {
     updateState: function(newState) {
       return this.setState(newState);
     },
+    addAnimElem: function(elem) {
+      var newState;
+      newState = {
+        animElemList: {
+          "$push": [elem]
+        }
+      };
+      newState = update(this.state, newState);
+      return this.setState(newState);
+    },
     render: function() {
       return React.createElement("div", {
         "id": "Contents"
       }, React.createElement(MainView, {
-        "path": this.state.projectPath
+        "path": this.state.projectPath,
+        "Action": {
+          setParentState: this.updateState,
+          addAnimElem: this.addAnimElem
+        }
       }), React.createElement(FileView, {
         "path": this.state.projectPath,
         "Action": {

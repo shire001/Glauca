@@ -5,7 +5,7 @@ class AnimationElement
   # static field 通し番号
   @curId = 0
 
-  constructor: (@name, @dom) ->
+  constructor: (@name) ->
     @id = "#{AnimationElement.curId++}"
     @simpleId = "#{@id}"
     @propList = []

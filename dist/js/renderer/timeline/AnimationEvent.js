@@ -29,7 +29,7 @@ AnimationEvent = (function() {
 
   AnimationEvent.prototype.compile = function() {
     var endVars, startVars, target;
-    target = "window.element['" + (this.target.dom.getAttribute("name")) + "']";
+    target = "window.element['" + this.target.element.id + "']";
     if (AttrDict.includes(this.target.name)) {
       startVars = "{attr:{" + this.target.name + ":" + this.startValue + "}}";
       endVars = "{attr:{" + this.target.name + ":" + this.endValue + "}}";
