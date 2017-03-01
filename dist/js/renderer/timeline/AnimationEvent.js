@@ -13,8 +13,8 @@ AnimationEvent = (function() {
 
   simpleId = null;
 
-  function AnimationEvent(target1, startValue, endValue, time, duration, bezier) {
-    this.target = target1;
+  function AnimationEvent(target, startValue, endValue, time, duration, bezier) {
+    this.target = target;
     this.startValue = startValue;
     this.endValue = endValue;
     this.time = time;
@@ -28,16 +28,43 @@ AnimationEvent = (function() {
   };
 
   AnimationEvent.prototype.compile = function() {
-    var endVars, startVars, target;
-    target = "window.element['" + this.target.element.id + "']";
+    var args, endVars, obj, obj1, obj2, obj3, startVars;
     if (AttrDict.includes(this.target.name)) {
-      startVars = "{attr:{" + this.target.name + ":" + this.startValue + "}}";
-      endVars = "{attr:{" + this.target.name + ":" + this.endValue + "}}";
+      startVars = {
+        attr: (
+          obj = {},
+          obj["" + this.target.name] = this.startValue,
+          obj
+        )
+      };
+      endVars = {
+        attr: (
+          obj1 = {},
+          obj1["" + this.target.name] = this.endValue,
+          obj1
+        )
+      };
     } else {
-      startVars = "{" + this.target.name + ":" + this.startValue + "}";
-      endVars = "{" + this.target.name + ":" + this.endValue + "}";
+      startVars = (
+        obj2 = {},
+        obj2["{" + this.target.name] = this.startValue,
+        obj2
+      );
+      endVars = (
+        obj3 = {},
+        obj3["" + this.target.name] = this.endValue,
+        obj3
+      );
     }
-    return " .fromTo(" + target + ", " + this.duration + ", " + startVars + ", " + endVars + ", " + this.time + ")\n";
+    args = {
+      target: this.target.element.id,
+      duration: this.duration,
+      startVar: startVars,
+      endVar: endVars,
+      time: this.time,
+      bezier: this.bezier
+    };
+    return args;
   };
 
   return AnimationEvent;

@@ -51,19 +51,19 @@ AnimationProperty = (function() {
   };
 
   AnimationProperty.prototype.compile = function() {
-    var code, event, j, k, len, len1, prop, ref, ref1;
-    code = "";
+    var event, insts, j, k, len, len1, prop, ref, ref1;
+    insts = [];
     ref = this.propList;
     for (j = 0, len = ref.length; j < len; j++) {
       prop = ref[j];
-      code += prop.compile();
+      insts = insts.concat(prop.compile());
     }
     ref1 = this.eventList;
     for (k = 0, len1 = ref1.length; k < len1; k++) {
       event = ref1[k];
-      code += event.compile();
+      insts.push(event.compile());
     }
-    return code;
+    return insts;
   };
 
   return AnimationProperty;

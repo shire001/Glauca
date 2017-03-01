@@ -32,11 +32,11 @@ class AnimationProperty
       i++
 
   compile: () ->
-    code = ""
+    insts = []
     for prop in @propList
-      code += prop.compile()
+      insts = insts.concat prop.compile()
     for event in @eventList
-      code += event.compile()
-    return code
+      insts.push event.compile()
+    return insts
 
 module.exports = AnimationProperty

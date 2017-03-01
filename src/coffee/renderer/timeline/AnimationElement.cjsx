@@ -38,9 +38,9 @@ class AnimationElement
       i++
 
   compile: () ->
-    code = ""
+    insts = []
     for prop in @propList
-      code += prop.compile()
-    return code
+      insts = insts.concat prop.compile()
+    return insts
 
 module.exports = AnimationElement

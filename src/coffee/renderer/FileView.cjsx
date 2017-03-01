@@ -1,7 +1,7 @@
 React = require 'react'
 
 fs = require 'fs'
-remote = require('electron').remote
+{remote} = require 'electron'
 {exec} = remote.require('child_process')
 update = require 'react-addons-update'
 module.exports = React.createClass

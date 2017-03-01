@@ -37,10 +37,30 @@ module.exports = React.createClass
       newProp.eventList.push newEvent
       newElem.propList.push newProp
     return newElem
+  onClickPlay: (e) ->
+    window.Timeline.timeScale 1
+  onClickPause: (e) ->
+    window.Timeline.timeScale 0
+  onClickStop: (e) ->
+    window.Timeline.progress(0).timeScale(0)
+    @props.Action.setParentState curTime: 0
+  onClickFastBack: (e) ->
+    window.Timeline.progress 0
+    @props.Action.setParentState curTime: 0
+  onClickFastFor: (e) ->
+    window.Timeline.progress 1
+    @props.Action.setParentState curTime: window.totalTime
   render: ->
     items = @state.items.map (item) =>
       <image xlinkHref={"#{@props.path}#{item.path}"} x={item.x} y={item.y} height={item.height} width={item.width} id={"AnimationElement##{item.animElem.id}"} key={"AnimationElement#{item.animElem.id}"}/>
     <div id="MainView" onDrop={@onDropItem}>
+      <div id="Controller">
+        <div className="fa fa-fast-backward" onClick={@onClickFastBack}/>
+        <div className="fa fa-pause" onClick={@onClickPause}/>
+        <div className="fa fa-play" onClick={@onClickPlay}/>
+        <div className="fa fa-stop" onClick={@onClickStop}/>
+        <div className="fa fa-fast-forward" onClick={@onClickFastFor}/>
+      </div>
       <svg>
         {items}
       </svg>

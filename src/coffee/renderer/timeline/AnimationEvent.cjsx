@@ -13,13 +13,19 @@ class AnimationEvent
     @simpleId = "e#{@target.eventList.length}"
 
   compile: () ->
-    target = "window.element['#{@target.element.id}']"
     if AttrDict.includes @target.name
-      startVars = "{attr:{#{@target.name}:#{@startValue}}}"
-      endVars = "{attr:{#{@target.name}:#{@endValue}}}"
+      startVars = attr: {"#{@target.name}": @startValue}
+      endVars = attr: {"#{@target.name}": @endValue}
     else
-      startVars = "{#{@target.name}:#{@startValue}}"
-      endVars = "{#{@target.name}:#{@endValue}}"
-    return " .fromTo(#{target}, #{@duration}, #{startVars}, #{endVars}, #{@time})\n"
+      startVars = "{#{@target.name}": @startValue
+      endVars = "#{@target.name}": @endValue
+    args =
+      target: @target.element.id
+      duration: @duration
+      startVar: startVars
+      endVar: endVars
+      time: @time
+      bezier: @bezier
+    return args
 
 module.exports = AnimationEvent

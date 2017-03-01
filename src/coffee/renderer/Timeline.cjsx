@@ -15,17 +15,21 @@ IntervalPx = 40 # px
 TimeWidth = 30 # px
 window.totalTime = 60 # sec
 
-compileAnimation = (elems) ->
-  code = "var timeline = new TimelineMax();\n"
-  code += "timeline.fromTo('#MainView', #{window.totalTime}, {opacity: 1}, {opacity: 1}, 0)\n"
+compileAnimation = (elems, curTime, updateSlider) ->
+  window.Timeline= new TimelineMax {onUpdate:updateSlider}
+  window.Timeline.fromTo('#MainView', window.totalTime, {opacity: 1}, {opacity: 1}, 0)
+  insts = []
   for elem in elems
-    code += elem.compile()
+    insts = insts.concat elem.compile()
+
   window.element = []
   for elem in elems
     window.element[elem.id] = document.getElementById "AnimationElement##{elem.id}"
-  console.log window.element, code
-  eval code
-  return code
+
+  for inst in insts
+    window.Timeline.fromTo(window.element[inst.target], inst.duration, inst.startVar, inst.endVar, inst.time)
+
+  window.Timeline.progress(curTime / window.totalTime).timeScale(0)
 
 genClickHandler = (singleFunc, dblFunc) ->
   clicked = false
@@ -164,7 +168,8 @@ module.exports = React.createClass
     targetId = elemDom.getAttribute("alt")
     newElem = {}
     newElem.isRename = true
-    @props.setParentState @updateAnimElemList(targetId, [newElem])
+    @props.setParentState @updateAnimElemList(targetId, [newElem]), =>
+      compileAnimation @props.parentState.animElemList, @props.curTime, @updateTimebar
 
   renameElement: (e) ->
     elemDom = e.target.parentNode.parentNode
@@ -174,7 +179,8 @@ module.exports = React.createClass
     newElem = {}
     newElem.name = newName
     newElem.isRename = false
-    @props.setParentState @updateAnimElemList(targetId, [newElem])
+    @props.setParentState @updateAnimElemList(targetId, [newElem]), =>
+      compileAnimation @props.parentState.animElemList, @props.curTime, @updateTimebar
 
   onClickAddProp: (e) ->
     elemDom = e.target.parentNode.parentNode
@@ -231,23 +237,24 @@ module.exports = React.createClass
     newState = update(@state, newState)
     @setState newState
 
+  createNewAnimEvent: (e)->
+    e.stopPropagation()
+    timelineDom = document.getElementById "ValueTimelineInner"
+    timelineRect = timelineDom.getBoundingClientRect()
+    x = e.clientX - timelineRect.left
+    targetId = e.target.getAttribute "alt"
+    targetProp = @getAnimElemById targetId
+    time = x / @state.visibleTime.pps
+    newEvent = new AnimationEvent(targetProp, 0, 1, time, 2, null)
+    newEvent.setId()
+    targetProp.addEvent(newEvent, @) #FIXME
+    console.log e.target, targetId, x, targetProp
+
   genValueDom: (element) ->
-    _this = @
-    onSingleClick = (e) ->
+    onSingleClick = (e) =>
       e.persist()
-    onDblClick = (e) ->
-      e.stopPropagation()
-      timelineDom = document.getElementById "ValueTimelineInner"
-      timelineRect = timelineDom.getBoundingClientRect()
-      x = e.clientX - timelineRect.left
-      targetId = e.target.getAttribute "alt"
-      targetProp = _this.getAnimElemById targetId
-      time = x / _this.state.visibleTime.pps
-      newEvent = new AnimationEvent(targetProp, 0, 1, time, 2, null)
-      newEvent.setId()
-      targetProp.addEvent(newEvent, _this) #FIXME
-      console.log e.target, targetId, x, targetProp
-    onClick = genClickHandler(onSingleClick, onDblClick)
+
+    onClick = genClickHandler(onSingleClick, @createNewAnimEvent)
     <div className={
       if element instanceof AnimationElement
         "value"
@@ -258,14 +265,25 @@ module.exports = React.createClass
         if element instanceof AnimationElement
           <div className="prop_value"/>
         else if element instanceof AnimationProperty
-          element.eventList.map (event) ->
-            _this.genEventDom(event)
+          element.eventList.map (event) =>
+            @genEventDom(event)
       }
       {
-        element.propList.map (prop) ->
-          _this.genValueDom(prop)
+        element.propList.map (prop) =>
+          @genValueDom(prop)
       }
     </div>
+
+  onClickTimebar: (e) ->
+    e.stopPropagation()
+    timelineDom = document.getElementById "ValueTimelineInner"
+    timelineRect = timelineDom.getBoundingClientRect()
+    time = (e.clientX - timelineRect.left) / @state.visibleTime.pps
+    window.Timeline?.progress(time / window.totalTime)
+    @props.setParentState curTime: time
+
+  updateTimebar: () ->
+    @props.setParentState curTime: (window.totalTime * window.Timeline.progress())
 
   genTimeStr: (time) ->
     minutes = Math.floor(time / 60)
@@ -309,7 +327,8 @@ module.exports = React.createClass
     newEvent.endValue = inputDoms[1].value
     newEvent.duration = inputDoms[2].value
     newState = @updateAnimEvent(targetId, [newEvent])
-    @props.setParentState newState
+    @props.setParentState newState, =>
+      compileAnimation @props.parentState.animElemList, @props.curTime, @updateTimebar
     newState =
       eventTip:
         "$set":
@@ -340,12 +359,15 @@ module.exports = React.createClass
     newState = @updateAnimEvent(targetId, [newState])
     @props.setParentState newState
 
+  dragEndEvent: (e) ->
+    compileAnimation @props.parentState.animElemList, @props.curTime, @updateTimebar
+
   genEventDom: (event)->
     width = 15
     startX = event.time * @state.visibleTime.pps - width / 2
     endX = event.duration * @state.visibleTime.pps
     doms = []
-    <div className="event" key={event.id} alt={event.id} style={left:"#{startX}px"} onContextMenu={@onEventRightClick} onDrag={@dragEvent}>
+    <div className="event" key={event.id} alt={event.id} style={left:"#{startX}px"} onContextMenu={@onEventRightClick} onDrag={@dragEvent} onDragEnd={@dragEndEvent}>
       {
         if event.duration is 0
           <div className="fa fa-circle start" value={event.startValue} style={left:"0px", width:"#{width}px"} key={"#{event.id}-set"} onDrag={@dragEvent}/>
@@ -418,17 +440,18 @@ module.exports = React.createClass
         .to("#e1", 1, {attr:{cy:50}}, 1)
         .to('#e3', 1, {scaleX:2}, tl.recent().endTime())
 
-    _this = @
-    keyDoms = @props.parentState.animElemList.map (element) ->
-      _this.genKeyDom(0, element)
 
-    valueDoms = @props.parentState.animElemList.map (element) ->
-      _this.genValueDom(element)
+    keyDoms = @props.parentState.animElemList.map (element) =>
+      @genKeyDom(0, element)
+
+    valueDoms = @props.parentState.animElemList.map (element) =>
+      @genValueDom(element)
 
     timeDoms = @genTimeDoms()
 
-    testOnClick = (e) ->
-      console.log compileAnimation _this.props.parentState.animElemList
+    testOnClick = (e) =>
+      console.log compileAnimation @props.parentState.animElemList, @props.curTime, @updateTimebar
+      window.Timeline.timeScale 1
 
     eventTip = @getAnimEventById @state.eventTip.id
 
@@ -444,7 +467,8 @@ module.exports = React.createClass
       }
       <div id="ValueTimeline" onScroll={@onScrollValue}>
         <div id="ValueTimelineInner" style={width:"#{@state.visibleTime.width}%"}>
-          <div id="Timebar">
+          <div id="CurretTimeBar" style={left:"#{@props.curTime * @state.visibleTime.pps}px"}/>
+          <div id="Timebar" onClick={@onClickTimebar}>
             {timeDoms}
           </div>
           {valueDoms}

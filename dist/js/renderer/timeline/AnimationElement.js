@@ -53,14 +53,14 @@ AnimationElement = (function() {
   };
 
   AnimationElement.prototype.compile = function() {
-    var code, j, len, prop, ref;
-    code = "";
+    var insts, j, len, prop, ref;
+    insts = [];
     ref = this.propList;
     for (j = 0, len = ref.length; j < len; j++) {
       prop = ref[j];
-      code += prop.compile();
+      insts = insts.concat(prop.compile());
     }
-    return code;
+    return insts;
   };
 
   return AnimationElement;

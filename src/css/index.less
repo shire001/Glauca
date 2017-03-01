@@ -23,6 +23,23 @@ html, body {
   svg {
     width: 100%;
     height: 100%;
+    border:  1px solid black;
+  }
+  #Controller {
+    height: 25px;
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    position: absolute;
+    bottom: 0;
+    color: white;
+    background-color: #585858;
+    .fa {
+      margin: auto 5px;
+    }
+    .fa:hover {
+      color: rgb(106, 255, 255);
+    }
   }
 }
 
@@ -156,6 +173,13 @@ html, body {
       flex-direction: column;
     }
 
+    #CurretTimeBar {
+      position: absolute;
+      height: 100%;
+      width: 1px;
+      background-color: white;
+    }
+
     #Timebar {
       width: 100%;
       height: @elementHeight;
@@ -170,6 +194,7 @@ html, body {
         width: 30px;
         text-align: center;
         line-height: @elementHeight;
+        cursor: default;
       }
     }
     .value {
@@ -195,6 +220,9 @@ html, body {
             height: 3px;
             background-color: rgb(159, 228, 228);
             position: absolute;
+          }
+          .start:hover, .end:hover, .line:hover {
+            color: white;
           }
         }
       }

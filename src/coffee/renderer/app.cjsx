@@ -2,10 +2,11 @@ document.ondragover = document.ondrop = (e) ->
   e.preventDefault()
   false
 
+window.Timeline = null
+
 window.onload = () ->
-  remote = require('electron').remote
   update = require 'react-addons-update'
-  {ipcRenderer} = require 'electron'
+  {ipcRenderer, remote} = require 'electron'
   React = require 'react'
   ReactDOM = require 'react-dom'
   MainView = require './js/renderer/MainView'
@@ -20,6 +21,7 @@ window.onload = () ->
       type: null
       item: null
       animElemList: []
+      curTime: 0
     componentDidMount: ->
       ipcRenderer.on 'requestPath-reply', (err, path) =>
         console.log err if err?
@@ -30,8 +32,8 @@ window.onload = () ->
       ipcRenderer.on 'capture', (err, type) =>
         console.log type
 
-    updateState: (newState) ->
-      @setState newState
+    updateState: (newState, callback) ->
+      @setState newState, callback
 
     addAnimElem: (elem) ->
       newState =
@@ -46,7 +48,7 @@ window.onload = () ->
           <MainView path={@state.projectPath} Action={setParentState: @updateState, addAnimElem: @addAnimElem}/>
           <FileView path={@state.projectPath} Action={setProperty: @setProperty}/>
           <PropertyView type={@state.type}, item={@state.item}/>
-          <Timeline parentState={@state} animElemList={@state.animElemList} setParentState={@updateState}/>
+          <Timeline parentState={@state} curTime={@state.curTime} setParentState={@updateState}/>
         </div>
       )
   ReactDOM.render(

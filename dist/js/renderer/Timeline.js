@@ -20,22 +20,31 @@ TimeWidth = 30;
 
 window.totalTime = 60;
 
-compileAnimation = function(elems) {
-  var code, elem, k, l, len, len1;
-  code = "var timeline = new TimelineMax();\n";
-  code += "timeline.fromTo('#MainView', " + window.totalTime + ", {opacity: 1}, {opacity: 1}, 0)\n";
+compileAnimation = function(elems, curTime, updateSlider) {
+  var elem, inst, insts, k, l, len, len1, len2, m;
+  window.Timeline = new TimelineMax({
+    onUpdate: updateSlider
+  });
+  window.Timeline.fromTo('#MainView', window.totalTime, {
+    opacity: 1
+  }, {
+    opacity: 1
+  }, 0);
+  insts = [];
   for (k = 0, len = elems.length; k < len; k++) {
     elem = elems[k];
-    code += elem.compile();
+    insts = insts.concat(elem.compile());
   }
   window.element = [];
   for (l = 0, len1 = elems.length; l < len1; l++) {
     elem = elems[l];
     window.element[elem.id] = document.getElementById("AnimationElement#" + elem.id);
   }
-  console.log(window.element, code);
-  eval(code);
-  return code;
+  for (m = 0, len2 = insts.length; m < len2; m++) {
+    inst = insts[m];
+    window.Timeline.fromTo(window.element[inst.target], inst.duration, inst.startVar, inst.endVar, inst.time);
+  }
+  return window.Timeline.progress(curTime / window.totalTime).timeScale(0);
 };
 
 genClickHandler = function(singleFunc, dblFunc) {
@@ -224,7 +233,11 @@ module.exports = React.createClass({
     targetId = elemDom.getAttribute("alt");
     newElem = {};
     newElem.isRename = true;
-    return this.props.setParentState(this.updateAnimElemList(targetId, [newElem]));
+    return this.props.setParentState(this.updateAnimElemList(targetId, [newElem]), (function(_this) {
+      return function() {
+        return compileAnimation(_this.props.parentState.animElemList, _this.props.curTime, _this.updateTimebar);
+      };
+    })(this));
   },
   renameElement: function(e) {
     var elemDom, newElem, newName, targetId;
@@ -234,7 +247,11 @@ module.exports = React.createClass({
     newElem = {};
     newElem.name = newName;
     newElem.isRename = false;
-    return this.props.setParentState(this.updateAnimElemList(targetId, [newElem]));
+    return this.props.setParentState(this.updateAnimElemList(targetId, [newElem]), (function(_this) {
+      return function() {
+        return compileAnimation(_this.props.parentState.animElemList, _this.props.curTime, _this.updateTimebar);
+      };
+    })(this));
   },
   onClickAddProp: function(e) {
     var elemDom, element, newProp, targetId;
@@ -308,27 +325,28 @@ module.exports = React.createClass({
     newState = update(this.state, newState);
     return this.setState(newState);
   },
+  createNewAnimEvent: function(e) {
+    var newEvent, targetId, targetProp, time, timelineDom, timelineRect, x;
+    e.stopPropagation();
+    timelineDom = document.getElementById("ValueTimelineInner");
+    timelineRect = timelineDom.getBoundingClientRect();
+    x = e.clientX - timelineRect.left;
+    targetId = e.target.getAttribute("alt");
+    targetProp = this.getAnimElemById(targetId);
+    time = x / this.state.visibleTime.pps;
+    newEvent = new AnimationEvent(targetProp, 0, 1, time, 2, null);
+    newEvent.setId();
+    targetProp.addEvent(newEvent, this);
+    return console.log(e.target, targetId, x, targetProp);
+  },
   genValueDom: function(element) {
-    var _this, onClick, onDblClick, onSingleClick;
-    _this = this;
-    onSingleClick = function(e) {
-      return e.persist();
-    };
-    onDblClick = function(e) {
-      var newEvent, targetId, targetProp, time, timelineDom, timelineRect, x;
-      e.stopPropagation();
-      timelineDom = document.getElementById("ValueTimelineInner");
-      timelineRect = timelineDom.getBoundingClientRect();
-      x = e.clientX - timelineRect.left;
-      targetId = e.target.getAttribute("alt");
-      targetProp = _this.getAnimElemById(targetId);
-      time = x / _this.state.visibleTime.pps;
-      newEvent = new AnimationEvent(targetProp, 0, 1, time, 2, null);
-      newEvent.setId();
-      targetProp.addEvent(newEvent, _this);
-      return console.log(e.target, targetId, x, targetProp);
-    };
-    onClick = genClickHandler(onSingleClick, onDblClick);
+    var onClick, onSingleClick;
+    onSingleClick = (function(_this) {
+      return function(e) {
+        return e.persist();
+      };
+    })(this);
+    onClick = genClickHandler(onSingleClick, this.createNewAnimEvent);
     return React.createElement("div", {
       "className": (element instanceof AnimationElement ? "value" : "prop_value"),
       "key": element.id,
@@ -336,11 +354,33 @@ module.exports = React.createClass({
       "onClick": onClick
     }, (element instanceof AnimationElement ? React.createElement("div", {
       "className": "prop_value"
-    }) : element instanceof AnimationProperty ? element.eventList.map(function(event) {
-      return _this.genEventDom(event);
-    }) : void 0), element.propList.map(function(prop) {
-      return _this.genValueDom(prop);
-    }));
+    }) : element instanceof AnimationProperty ? element.eventList.map((function(_this) {
+      return function(event) {
+        return _this.genEventDom(event);
+      };
+    })(this)) : void 0), element.propList.map((function(_this) {
+      return function(prop) {
+        return _this.genValueDom(prop);
+      };
+    })(this)));
+  },
+  onClickTimebar: function(e) {
+    var ref, time, timelineDom, timelineRect;
+    e.stopPropagation();
+    timelineDom = document.getElementById("ValueTimelineInner");
+    timelineRect = timelineDom.getBoundingClientRect();
+    time = (e.clientX - timelineRect.left) / this.state.visibleTime.pps;
+    if ((ref = window.Timeline) != null) {
+      ref.progress(time / window.totalTime);
+    }
+    return this.props.setParentState({
+      curTime: time
+    });
+  },
+  updateTimebar: function() {
+    return this.props.setParentState({
+      curTime: window.totalTime * window.Timeline.progress()
+    });
   },
   genTimeStr: function(time) {
     var minutes, out, seconds;
@@ -396,7 +436,11 @@ module.exports = React.createClass({
     newEvent.endValue = inputDoms[1].value;
     newEvent.duration = inputDoms[2].value;
     newState = this.updateAnimEvent(targetId, [newEvent]);
-    this.props.setParentState(newState);
+    this.props.setParentState(newState, (function(_this) {
+      return function() {
+        return compileAnimation(_this.props.parentState.animElemList, _this.props.curTime, _this.updateTimebar);
+      };
+    })(this));
     newState = {
       eventTip: {
         "$set": {
@@ -434,6 +478,9 @@ module.exports = React.createClass({
     newState = this.updateAnimEvent(targetId, [newState]);
     return this.props.setParentState(newState);
   },
+  dragEndEvent: function(e) {
+    return compileAnimation(this.props.parentState.animElemList, this.props.curTime, this.updateTimebar);
+  },
   genEventDom: function(event) {
     var dom, doms, endX, startX, width;
     width = 15;
@@ -448,7 +495,8 @@ module.exports = React.createClass({
         left: startX + "px"
       },
       "onContextMenu": this.onEventRightClick,
-      "onDrag": this.dragEvent
+      "onDrag": this.dragEvent,
+      "onDragEnd": this.dragEndEvent
     }, (event.duration === 0 ? React.createElement("div", {
       "className": "fa fa-circle start",
       "value": event.startValue,
@@ -543,7 +591,7 @@ module.exports = React.createClass({
     return this.setState(newState);
   },
   render: function() {
-    var _this, eventTip, keyDoms, onClick, testOnClick, timeDoms, valueDoms;
+    var eventTip, keyDoms, onClick, testOnClick, timeDoms, valueDoms;
     onClick = function() {
       var e1, e2, e3, tl;
       e1 = document.getElementById("e1");
@@ -571,17 +619,23 @@ module.exports = React.createClass({
         scaleX: 2
       }, tl.recent().endTime());
     };
-    _this = this;
-    keyDoms = this.props.parentState.animElemList.map(function(element) {
-      return _this.genKeyDom(0, element);
-    });
-    valueDoms = this.props.parentState.animElemList.map(function(element) {
-      return _this.genValueDom(element);
-    });
+    keyDoms = this.props.parentState.animElemList.map((function(_this) {
+      return function(element) {
+        return _this.genKeyDom(0, element);
+      };
+    })(this));
+    valueDoms = this.props.parentState.animElemList.map((function(_this) {
+      return function(element) {
+        return _this.genValueDom(element);
+      };
+    })(this));
     timeDoms = this.genTimeDoms();
-    testOnClick = function(e) {
-      return console.log(compileAnimation(_this.props.parentState.animElemList));
-    };
+    testOnClick = (function(_this) {
+      return function(e) {
+        console.log(compileAnimation(_this.props.parentState.animElemList, _this.props.curTime, _this.updateTimebar));
+        return window.Timeline.timeScale(1);
+      };
+    })(this);
     eventTip = this.getAnimEventById(this.state.eventTip.id);
     return React.createElement("div", {
       "id": "Timeline"
@@ -603,7 +657,13 @@ module.exports = React.createClass({
         width: this.state.visibleTime.width + "%"
       }
     }, React.createElement("div", {
-      "id": "Timebar"
+      "id": "CurretTimeBar",
+      "style": {
+        left: (this.props.curTime * this.state.visibleTime.pps) + "px"
+      }
+    }), React.createElement("div", {
+      "id": "Timebar",
+      "onClick": this.onClickTimebar
     }, timeDoms), valueDoms)), React.createElement("div", {
       "className": "mousePointView"
     }));

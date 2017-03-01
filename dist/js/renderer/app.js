@@ -3,11 +3,12 @@ document.ondragover = document.ondrop = function(e) {
   return false;
 };
 
+window.Timeline = null;
+
 window.onload = function() {
-  var Contents, FileView, MainView, PropertyView, React, ReactDOM, Timeline, ipcRenderer, remote, update;
-  remote = require('electron').remote;
+  var Contents, FileView, MainView, PropertyView, React, ReactDOM, Timeline, ipcRenderer, ref, remote, update;
   update = require('react-addons-update');
-  ipcRenderer = require('electron').ipcRenderer;
+  ref = require('electron'), ipcRenderer = ref.ipcRenderer, remote = ref.remote;
   React = require('react');
   ReactDOM = require('react-dom');
   MainView = require('./js/renderer/MainView');
@@ -26,7 +27,8 @@ window.onload = function() {
         projectPath: null,
         type: null,
         item: null,
-        animElemList: []
+        animElemList: [],
+        curTime: 0
       };
     },
     componentDidMount: function() {
@@ -48,8 +50,8 @@ window.onload = function() {
         };
       })(this));
     },
-    updateState: function(newState) {
-      return this.setState(newState);
+    updateState: function(newState, callback) {
+      return this.setState(newState, callback);
     },
     addAnimElem: function(elem) {
       var newState;
@@ -80,7 +82,7 @@ window.onload = function() {
         "item": this.state.item
       }), React.createElement(Timeline, {
         "parentState": this.state,
-        "animElemList": this.state.animElemList,
+        "curTime": this.state.curTime,
         "setParentState": this.updateState
       }));
     }
